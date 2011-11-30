@@ -1,0 +1,67 @@
+/**
+ * Copyright 2011 OpenDDR LLC
+ * This software is distributed under the terms of the GNU Lesser General Public License.
+ *
+ *
+ * This file is part of OpenDDR Simple APIs.
+ * OpenDDR Simple APIs is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, version 3 of the License.
+ *
+ * OpenDDR Simple APIs is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Simple APIs.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+package org.openddr.simpleapi.oddr.identificator;
+
+import java.util.Map;
+import org.openddr.simpleapi.oddr.builder.Builder;
+import org.openddr.simpleapi.oddr.model.UserAgent;
+import org.openddr.simpleapi.oddr.model.UserAgentFactory;
+import org.openddr.simpleapi.oddr.model.browser.Browser;
+import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
+import org.w3c.ddr.simple.Evidence;
+
+public class OSIdentificator implements Identificator {
+
+    private Builder[] builders;
+
+    public OSIdentificator(Builder[] builders, Map<String, Browser> browserCapabilities) {
+        this.builders = builders;
+    }
+
+    public OperatingSystem get(String userAgent, int confidenceTreshold) {
+        return get(UserAgentFactory.newUserAgent(userAgent), confidenceTreshold);
+    }
+
+    //XXX to be refined, this should NOT be the main entry point, we should use a set of evidence derivation
+    public OperatingSystem get(Evidence evdnc, int threshold) {
+        UserAgent ua = UserAgentFactory.newDeviceUserAgent(evdnc);
+        if (ua != null) {
+            return get(ua, threshold);
+        }
+        return null;
+    }
+
+    public OperatingSystem get(UserAgent userAgent, int confidenceTreshold) {
+        for (Builder builder : builders) {
+            if (builder.canBuild(userAgent)) {
+                OperatingSystem os = (OperatingSystem) builder.build(userAgent, confidenceTreshold);
+                if (os != null) {
+                    return os;
+                }
+            }
+        }
+        return null;
+    }
+
+    public void completeInit() {
+        //does nothing
+    }
+}
