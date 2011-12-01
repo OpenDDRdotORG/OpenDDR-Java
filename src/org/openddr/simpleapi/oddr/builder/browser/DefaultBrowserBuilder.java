@@ -54,7 +54,8 @@ public class DefaultBrowserBuilder implements Builder {
                     new PolarisBrowserBuilder(),
                     new ObigoBrowserBuilder(),
                     new OperaBrowserBuilder(),
-                    new IEMobileBrowserBuilder()
+                    new IEMobileBrowserBuilder(),
+                    new InternetExplorerBrowserBuilder()
                 };
     }
 

@@ -66,9 +66,8 @@ public class BrowserIdentificator implements Identificator {
                         if (!bestID.equals(browser.getId())) {
                             browser.setConfidence(browser.getConfidence() - 15);
                         }
-
-                        return browser;
                     }
+                    return browser;
                 }
             }
         }

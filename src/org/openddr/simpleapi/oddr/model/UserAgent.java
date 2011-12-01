@@ -41,6 +41,7 @@ public class UserAgent {
     private boolean containsAndroid;
     private boolean containsBlackBerry;
     private boolean containsIOSDevices;
+    private boolean containsMSIE;
     private boolean containsSymbian;
     private boolean containsWindowsPhone;
     private String[] patternElements;
@@ -130,6 +131,13 @@ public class UserAgent {
                         } else {
                             containsWindowsPhone = false;
                         }
+
+                        if (userAgent.matches(".*MSIE.([0-9\\.b]+).*")) {
+                            containsMSIE = true;
+
+                        } else {
+                            containsMSIE = false;
+                        }
                     }
                 }
             }
@@ -150,6 +158,10 @@ public class UserAgent {
 
     public boolean containsIOSDevices() {
         return containsIOSDevices;
+    }
+
+    public boolean containsMSIE() {
+        return containsMSIE;
     }
 
     public boolean containsSymbian() {
