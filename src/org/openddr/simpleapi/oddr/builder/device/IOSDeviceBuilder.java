@@ -52,7 +52,9 @@ public class IOSDeviceBuilder implements DeviceBuilder {
             if (userAgent.getCompleteUserAgent().matches(".*" + token + ".*")) {
                 String iosDeviceID = iOSDevices.get(token);
                 if (iosDeviceID != null) {
-                    return devices.get(iosDeviceID);
+                    Device retDevice = (Device) devices.get(iosDeviceID).clone();
+                    retDevice.setConfidence(90);
+                    return retDevice;
                 }
             }
         }
