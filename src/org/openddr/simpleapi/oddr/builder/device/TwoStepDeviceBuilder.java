@@ -119,6 +119,22 @@ public class TwoStepDeviceBuilder extends OrderedTokenDeviceBuilder {
             }
             int betweenTokensLength = betweenTokens.length();
 
+            if (step2Token.length() > 3) {
+                if (betweenTokensLength > maxBigTokensDistance) {
+                    confidence -= 10;
+                }
+
+                String deviceId = ((Map<String, String>) orderedRules.get(step1Token)).get(step2Token);
+
+                try {
+                    Device retDevice = (Device) devices.get(deviceId).clone();
+                    retDevice.setConfidence(confidence);
+                    return retDevice;
+
+                } catch (NullPointerException x) {
+                }
+            }
+
             if ((betweenTokensLength < maxLittleTokensDistance) || (betweenTokensLength < maxBigTokensDistance && (step2Token.length() < 6 || !step2Token.matches(".*[a-zA-Z].*")))) {
                 if (betweenTokensLength <= 1) {
                     if (!betweenTokens.matches(".*[ _/-].*")) {

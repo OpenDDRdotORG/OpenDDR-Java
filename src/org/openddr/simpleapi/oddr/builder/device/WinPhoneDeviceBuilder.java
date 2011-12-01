@@ -81,7 +81,7 @@ public class WinPhoneDeviceBuilder extends OrderedTokenDeviceBuilder {
 
             String looseToken = token.replaceAll("[ _/-]", ".?");
 
-            Pattern loosePattern = Pattern.compile(".*" + looseToken + ".*");
+            Pattern loosePattern = Pattern.compile("(?i).*" + looseToken + ".*");
 
             if (!loosePattern.matcher(userAgent.getCompleteUserAgent()).matches()) {
                 return null;
@@ -98,9 +98,9 @@ public class WinPhoneDeviceBuilder extends OrderedTokenDeviceBuilder {
                     currentToken = looseToken;
                 }
 
-                currentPattern = Pattern.compile(".*" + currentToken);
+                currentPattern = Pattern.compile("(?i).*" + currentToken);
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -111,7 +111,7 @@ public class WinPhoneDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
                 if (userAgent.getPatternElementsPre() != null && currentPattern.matcher(userAgent.getPatternElementsPre()).matches()) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -122,9 +122,9 @@ public class WinPhoneDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
 
-                currentPattern = Pattern.compile(".*" + currentToken + ".?;.*");
+                currentPattern = Pattern.compile("(?i).*" + currentToken + ".?;.*");
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -139,11 +139,11 @@ public class WinPhoneDeviceBuilder extends OrderedTokenDeviceBuilder {
                     currentPattern = loosePattern;
 
                 } else {
-                    currentPattern = Pattern.compile(".*" + currentToken + ".*");
+                    currentPattern = Pattern.compile("(?i).*" + currentToken + ".*");
                 }
 
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -154,7 +154,7 @@ public class WinPhoneDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
                 if (userAgent.getPatternElementsPre() != null && currentPattern.matcher(userAgent.getPatternElementsPre()).matches()) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -165,7 +165,7 @@ public class WinPhoneDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
                 if (userAgent.getPatternElementsPost() != null && currentPattern.matcher(userAgent.getPatternElementsPost()).matches()) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();

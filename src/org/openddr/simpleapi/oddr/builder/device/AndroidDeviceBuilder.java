@@ -81,9 +81,9 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
 
             String looseToken = token.replaceAll("[ _/-]", ".?");
 
-            Pattern loosePattern = Pattern.compile(".*" + looseToken + ".*");
+            Pattern loosePattern = Pattern.compile("(?i).*" + looseToken + ".*");
 
-            if (!loosePattern.matcher(userAgent.getCompleteUserAgent()).matches()) {
+            if (!loosePattern.matcher(userAgent.getCompleteUserAgent().replaceAll("Android", "")).matches()) {
                 return null;
             }
 
@@ -94,9 +94,9 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                     currentToken = looseToken;
                 }
 
-                currentPattern = Pattern.compile(".*" + currentToken + ".?Build/.*");
+                currentPattern = Pattern.compile("(?i).*" + currentToken + ".?Build/.*");
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//&& userAgent.getPatternElementsInside().matches(".*" + currentToken + ".?Build/.*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -107,9 +107,9 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
 
-                currentPattern = Pattern.compile(".*" + currentToken);
+                currentPattern = Pattern.compile("(?i).*" + currentToken);
                 if (userAgent.getPatternElementsPre() != null && currentPattern.matcher(userAgent.getPatternElementsPre()).matches()) {//userAgent.getPatternElementsPre().matches(".*" + currentToken)) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -121,7 +121,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
 
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken)) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -132,9 +132,9 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
 
-                currentPattern = Pattern.compile(".*" + currentToken + ".?;.*");
+                currentPattern = Pattern.compile("(?i).*" + currentToken + ".?;.*");
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".?;.*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -149,10 +149,10 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                     currentPattern = loosePattern;
 
                 } else {
-                    currentPattern = Pattern.compile(".*" + currentToken + ".*");
+                    currentPattern = Pattern.compile("(?i).*" + currentToken + ".*");
                 }
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -163,7 +163,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
                 if (userAgent.getPatternElementsPre() != null && currentPattern.matcher(userAgent.getPatternElementsPre()).matches()) {//userAgent.getPatternElementsPre().matches(".*" + currentToken + ".*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -174,7 +174,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
                 if (userAgent.getPatternElementsPost() != null && currentPattern.matcher(userAgent.getPatternElementsPost()).matches()) {//userAgent.getPatternElementsPost().matches(".*" + currentToken + ".*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(token);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
