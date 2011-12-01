@@ -43,6 +43,9 @@ public class ODDRVocabularyService {
     public static final String DDR_CORE_VOCABULARY_PATH_PROP = "ddr.vocabulary.core.path";
     public static final String ODDR_VOCABULARY_PATH_PROP = "oddr.vocabulary.path";
     public static final String ODDR_LIMITED_VOCABULARY_PATH_PROP = "oddr.limited.vocabulary.path";
+    public static final String DDR_CORE_VOCABULARY_STREAM_PROP = "ddr.vocabulary.core.stream";
+    public static final String ODDR_VOCABULARY_STREAM_PROP = "oddr.vocabulary.stream";
+    public static final String ODDR_LIMITED_VOCABULARY_STREAM_PROP = "oddr.limited.vocabulary.stream";
     public static final String ODDR_LIMITED_VOCABULARY_IRI = "limitedVocabulary";
     private VocabularyHolder vocabularyHolder = null;
 
@@ -52,40 +55,72 @@ public class ODDRVocabularyService {
         String ddrCoreVocabularyPath = props.getProperty(DDR_CORE_VOCABULARY_PATH_PROP);
         String oddrVocabularyPath = props.getProperty(ODDR_VOCABULARY_PATH_PROP);
 
-        if (ddrCoreVocabularyPath == null || ddrCoreVocabularyPath.trim().length() == 0) {
+        InputStream ddrCoreVocabulayStream = null;
+        InputStream[] oddrVocabularyStream = null;
+        try {
+            ddrCoreVocabulayStream = (InputStream) props.get(DDR_CORE_VOCABULARY_STREAM_PROP);
+        } catch (Exception ex) {
+            ddrCoreVocabulayStream = null;
+        }
+        try {
+            oddrVocabularyStream = (InputStream[]) props.get(ODDR_VOCABULARY_STREAM_PROP);
+        } catch (Exception ex) {
+            oddrVocabularyStream = null;
+        }
+
+        if ((ddrCoreVocabularyPath == null || ddrCoreVocabularyPath.trim().length() == 0) && ddrCoreVocabulayStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + DDR_CORE_VOCABULARY_PATH_PROP));
         }
 
-        if (oddrVocabularyPath == null || oddrVocabularyPath.trim().length() == 0) {
+        if ((oddrVocabularyPath == null || oddrVocabularyPath.trim().length() == 0) && oddrVocabularyStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_VOCABULARY_PATH_PROP));
         }
 
-        String[] oddrVocabularyPaths = oddrVocabularyPath.split(",");
-        for (int i = 0; i < oddrVocabularyPaths.length; i++) {
-            oddrVocabularyPaths[i] = oddrVocabularyPaths[i].trim();
-        }
-
         VocabularyHandler vocabularyHandler = new VocabularyHandler();
+        Vocabulary vocabulary = null;
 
-        parseVocabulary(vocabularyHandler, DDR_CORE_VOCABULARY_PATH_PROP, ddrCoreVocabularyPath);
-        Vocabulary vocabulary = vocabularyHandler.getVocabulary();
+        if (ddrCoreVocabulayStream != null) {
+            parseVocabularyFromStream(vocabularyHandler, DDR_CORE_VOCABULARY_STREAM_PROP, ddrCoreVocabulayStream);
+        } else {
+            parseVocabularyFromPath(vocabularyHandler, DDR_CORE_VOCABULARY_PATH_PROP, ddrCoreVocabularyPath);
+        }
+        vocabulary = vocabularyHandler.getVocabulary();
         vocabularies.put(vocabulary.getVocabularyIRI(), vocabulary);
 
-        for (String oddVocabularyString : oddrVocabularyPaths) {
-            vocabularyHandler = new VocabularyHandler();
-            parseVocabulary(vocabularyHandler, ODDR_VOCABULARY_PATH_PROP, oddVocabularyString);
-            vocabulary = vocabularyHandler.getVocabulary();
-            vocabularies.put(vocabulary.getVocabularyIRI(), vocabulary);
+        if (oddrVocabularyStream != null) {
+            for (InputStream stream : oddrVocabularyStream) {
+                vocabularyHandler = new VocabularyHandler();
+                parseVocabularyFromStream(vocabularyHandler, ODDR_VOCABULARY_STREAM_PROP, stream);
+                vocabulary = vocabularyHandler.getVocabulary();
+                vocabularies.put(vocabulary.getVocabularyIRI(), vocabulary);
+            }
+        } else {
+            String[] oddrVocabularyPaths = oddrVocabularyPath.split(",");
+            for (int i = 0; i < oddrVocabularyPaths.length; i++) {
+                oddrVocabularyPaths[i] = oddrVocabularyPaths[i].trim();
+            }
+            for (String oddVocabularyString : oddrVocabularyPaths) {
+                vocabularyHandler = new VocabularyHandler();
+                parseVocabularyFromPath(vocabularyHandler, ODDR_VOCABULARY_PATH_PROP, oddVocabularyString);
+                vocabulary = vocabularyHandler.getVocabulary();
+                vocabularies.put(vocabulary.getVocabularyIRI(), vocabulary);
+            }
         }
 
         String oddrLimitedVocabularyPath = props.getProperty(ODDR_LIMITED_VOCABULARY_PATH_PROP);
+        InputStream oddrLimitedVocabularyStream = (InputStream)props.get(ODDR_LIMITED_VOCABULARY_STREAM_PROP);
 
-        if (oddrLimitedVocabularyPath != null && oddrLimitedVocabularyPath.trim().length() != 0) {
-            vocabularyHandler = new VocabularyHandler();
-            parseVocabulary(vocabularyHandler, ODDR_LIMITED_VOCABULARY_PATH_PROP, oddrLimitedVocabularyPath);
-            vocabulary = vocabularyHandler.getVocabulary();
-            vocabularies.put(ODDR_LIMITED_VOCABULARY_IRI, vocabulary);
+        if (oddrLimitedVocabularyStream != null) {
+            parseVocabularyFromStream(vocabularyHandler, ODDR_LIMITED_VOCABULARY_STREAM_PROP, oddrLimitedVocabularyStream);
+
+        } else {
+           if (oddrLimitedVocabularyPath != null && oddrLimitedVocabularyPath.trim().length() != 0) {
+                vocabularyHandler = new VocabularyHandler();
+                parseVocabularyFromPath(vocabularyHandler, ODDR_LIMITED_VOCABULARY_PATH_PROP, oddrLimitedVocabularyPath);
+            }
         }
+        vocabulary = vocabularyHandler.getVocabulary();
+        vocabularies.put(ODDR_LIMITED_VOCABULARY_IRI, vocabulary);
 
         vocabularyHolder = new VocabularyHolder(vocabularies);
 
@@ -94,7 +129,7 @@ public class ODDRVocabularyService {
 
     }
 
-    private void parseVocabulary(VocabularyHandler vocabularyHandler, String prop, String path) throws InitializationException {
+    private void parseVocabularyFromPath(VocabularyHandler vocabularyHandler, String prop, String path) throws InitializationException {
         InputStream stream = null;
         SAXParser parser = null;
 
@@ -123,6 +158,41 @@ public class ODDRVocabularyService {
 
         } catch (IOException ex) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not open " + prop + " : " + path));
+        }
+
+        try {
+            stream.close();
+
+        } catch (IOException ex) {
+            Logger.getLogger(ODDRService.class.getName()).log(Level.WARNING, null, ex);
+        }
+
+        parser = null;
+    }
+
+    private void parseVocabularyFromStream(VocabularyHandler vocabularyHandler, String prop, InputStream inputStream) throws InitializationException {
+        InputStream stream = null;
+        SAXParser parser = null;
+        stream = inputStream;
+
+        try {
+            parser = SAXParserFactory.newInstance().newSAXParser();
+
+        } catch (ParserConfigurationException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+
+        } catch (SAXException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+        }
+
+        try {
+            parser.parse(stream, vocabularyHandler);
+
+        } catch (SAXException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not parse document in property: " + prop));
+
+        } catch (IOException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not open " + prop));
         }
 
         try {

@@ -78,6 +78,11 @@ public class ODDRService implements Service {
     public static final String ODDR_UA_DEVICE_BUILDER_PATCH_PATHS_PROP = "oddr.ua.device.builder.patch.paths";
     public static final String ODDR_UA_DEVICE_DATASOURCE_PATCH_PATHS_PROP = "oddr.ua.device.datasource.patch.paths";
     public static final String ODDR_UA_BROWSER_DATASOURCE_PATH_PROP = "oddr.ua.browser.datasource.path";
+    public static final String ODDR_UA_DEVICE_BUILDER_STREAM_PROP = "oddr.ua.device.builder.stream";
+    public static final String ODDR_UA_DEVICE_DATASOURCE_STREAM_PROP = "oddr.ua.device.datasource.stream";
+    public static final String ODDR_UA_DEVICE_BUILDER_PATCH_STREAMS_PROP = "oddr.ua.device.builder.patch.streams";
+    public static final String ODDR_UA_DEVICE_DATASOURCE_PATCH_STREAMS_PROP = "oddr.ua.device.datasource.patch.streams";
+    public static final String ODDR_UA_BROWSER_DATASOURCE_STREAM_PROP = "oddr.ua.browser.datasource.stream";
     public static final String ODDR_THRESHOLD_PROP = "oddr.threshold";
     public static final String ODDR_VOCABULARY_IRI = "oddr.vocabulary.device";
     private static final String ODDR_API_VERSION = "1.0.0";
@@ -108,13 +113,46 @@ public class ODDRService implements Service {
         String oddrUaDeviceBuilderPatchPaths = prprts.getProperty(ODDR_UA_DEVICE_BUILDER_PATCH_PATHS_PROP);
         String oddrUaDeviceDatasourcePatchPaths = prprts.getProperty(ODDR_UA_DEVICE_DATASOURCE_PATCH_PATHS_PROP);
         String oddrUaBrowserDatasourcePaths = prprts.getProperty(ODDR_UA_BROWSER_DATASOURCE_PATH_PROP);
+
+        InputStream oddrUaDeviceBuilderStream = null;
+        InputStream oddrUaDeviceDatasourceStream = null;
+        InputStream[] oddrUaDeviceBuilderPatchStreams = null;
+        InputStream[] oddrUaDeviceDatasourcePatchStreams = null;
+        InputStream oddrUaBrowserDatasourceStream = null;
+
+        try {
+            oddrUaDeviceBuilderStream = (InputStream) prprts.get(ODDR_UA_DEVICE_BUILDER_STREAM_PROP);
+        } catch (Exception ex) {
+            oddrUaDeviceBuilderStream = null;
+        }
+        try {
+            oddrUaDeviceDatasourceStream = (InputStream) prprts.get(ODDR_UA_DEVICE_DATASOURCE_STREAM_PROP);
+        } catch (Exception ex) {
+            oddrUaDeviceDatasourceStream = null;
+        }
+        try {
+            oddrUaDeviceBuilderPatchStreams = (InputStream[]) prprts.get(ODDR_UA_DEVICE_BUILDER_PATCH_STREAMS_PROP);
+        } catch (Exception ex) {
+            oddrUaDeviceBuilderPatchStreams = null;
+        }
+        try {
+            oddrUaDeviceDatasourcePatchStreams = (InputStream[]) prprts.get(ODDR_UA_DEVICE_DATASOURCE_PATCH_STREAMS_PROP);
+        } catch (Exception ex) {
+            oddrUaDeviceDatasourcePatchStreams = null;
+        }
+        try {
+            oddrUaBrowserDatasourceStream = (InputStream) prprts.get(ODDR_UA_BROWSER_DATASOURCE_STREAM_PROP);
+        } catch (Exception ex) {
+            oddrUaBrowserDatasourceStream = null;
+        }
+
         String oddrThreshold = prprts.getProperty(ODDR_THRESHOLD_PROP);
 
-        if (oddrUaDeviceBuilderPath == null || oddrUaDeviceBuilderPath.trim().length() == 0) {
+        if ((oddrUaDeviceBuilderPath == null || oddrUaDeviceBuilderPath.trim().length() == 0) && oddrUaDeviceBuilderStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_DEVICE_BUILDER_PATH_PROP));
         }
 
-        if (oddrUaDeviceDatasourcePath == null || oddrUaDeviceDatasourcePath.trim().length() == 0) {
+        if ((oddrUaDeviceDatasourcePath == null || oddrUaDeviceDatasourcePath.trim().length() == 0) && oddrUaDeviceDatasourceStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP));
         }
 
@@ -136,7 +174,15 @@ public class ODDRService implements Service {
             ooddrUaDeviceDatasourcePatchPathArray = new String[0];
         }
 
-        if (oddrUaBrowserDatasourcePaths == null || oddrUaBrowserDatasourcePaths.trim().length() == 0) {
+        if (oddrUaDeviceBuilderPatchStreams == null) {
+            oddrUaDeviceBuilderPatchStreams = new InputStream[0];
+        }
+
+        if (oddrUaDeviceDatasourcePatchStreams == null) {
+            oddrUaDeviceDatasourcePatchStreams = new InputStream[0];
+        }
+
+        if ((oddrUaBrowserDatasourcePaths == null || oddrUaBrowserDatasourcePaths.trim().length() == 0) && oddrUaBrowserDatasourceStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_BROWSER_DATASOURCE_PATH_PROP));
         }
 
@@ -162,7 +208,11 @@ public class ODDRService implements Service {
         SAXParser parser = null;
 
         try {
-            stream = new FileInputStream(new File(oddrUaDeviceDatasourcePath));
+            if (oddrUaDeviceDatasourceStream != null) {
+                stream = oddrUaDeviceDatasourceStream;
+            } else {
+                stream = new FileInputStream(new File(oddrUaDeviceDatasourcePath));
+            }
 
         } catch (IOException ex) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP + " " + oddrUaDeviceDatasourcePath));
@@ -197,47 +247,82 @@ public class ODDRService implements Service {
 
         deviceDatasourceHandler.setPatching(true);
 
-        for (int i = 0; i < ooddrUaDeviceDatasourcePatchPathArray.length; i++) {
-            try {
-                stream = new FileInputStream(new File(ooddrUaDeviceDatasourcePatchPathArray[i]));
+        if (oddrUaDeviceDatasourcePatchStreams != null) {
+            for (int i = 0; i < oddrUaDeviceDatasourcePatchStreams.length; i++) {
+                stream = oddrUaDeviceDatasourcePatchStreams[i];
 
-            } catch (IOException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP + " " + ooddrUaDeviceDatasourcePatchPathArray[i]));
+                try {
+                    parser = SAXParserFactory.newInstance().newSAXParser();
+
+                } catch (ParserConfigurationException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+
+                } catch (SAXException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+                }
+
+                try {
+                    parser.parse(stream, deviceDatasourceHandler);
+
+                } catch (Exception ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not parse DeviceDatasource input stream " + i));
+                }
+
+                try {
+                    stream.close();
+
+                } catch (IOException ex) {
+                    logger.warn("", ex);
+                }
+            }
+        } else {
+            for (int i = 0; i < ooddrUaDeviceDatasourcePatchPathArray.length; i++) {
+                try {
+                    stream = new FileInputStream(new File(ooddrUaDeviceDatasourcePatchPathArray[i]));
+
+                } catch (IOException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP + " " + ooddrUaDeviceDatasourcePatchPathArray[i]));
+                }
+
+                try {
+                    parser = SAXParserFactory.newInstance().newSAXParser();
+
+                } catch (ParserConfigurationException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+
+                } catch (SAXException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+                }
+
+                try {
+                    parser.parse(stream, deviceDatasourceHandler);
+
+                } catch (SAXException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not parse document: " + ooddrUaDeviceDatasourcePatchPathArray[i]));
+
+                } catch (IOException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not open " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP + " :" + ooddrUaDeviceDatasourcePatchPathArray[i]));
+                }
+
+                try {
+                    stream.close();
+
+                } catch (IOException ex) {
+                    logger.warn("", ex);
+                }
             }
 
-            try {
-                parser = SAXParserFactory.newInstance().newSAXParser();
-
-            } catch (ParserConfigurationException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
-
-            } catch (SAXException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
-            }
-
-            try {
-                parser.parse(stream, deviceDatasourceHandler);
-
-            } catch (SAXException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not parse document: " + ooddrUaDeviceDatasourcePatchPathArray[i]));
-
-            } catch (IOException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not open " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP + " :" + ooddrUaDeviceDatasourcePatchPathArray[i]));
-            }
-
-            try {
-                stream.close();
-
-            } catch (IOException ex) {
-                logger.warn("", ex);
-            }
         }
 
         List<DeviceBuilder> builders = new ArrayList<DeviceBuilder>();
         DeviceBuilderHandler deviceBuilderHandler = new DeviceBuilderHandler(builders);
 
         try {
-            stream = new FileInputStream(new File(oddrUaDeviceBuilderPath));
+            if (oddrUaDeviceBuilderStream != null) {
+                stream = oddrUaDeviceBuilderStream;
+            } else {
+                stream = new FileInputStream(new File(oddrUaDeviceBuilderPath));
+            }
 
         } catch (IOException ex) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_DEVICE_BUILDER_PATH_PROP + " " + oddrUaDeviceBuilderPath));
@@ -270,46 +355,81 @@ public class ODDRService implements Service {
             logger.warn("", ex);
         }
 
-        for (int i = 0; i < oddrUaDeviceBuilderPatchPathArray.length; i++) {
-            try {
-                stream = new FileInputStream(new File(oddrUaDeviceBuilderPatchPathArray[i]));
+        if (oddrUaDeviceBuilderPatchStreams != null) {
+            for (int i = 0; i < oddrUaDeviceBuilderPatchStreams.length; i++) {
+                stream = oddrUaDeviceBuilderPatchStreams[i];
 
-            } catch (IOException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_DEVICE_BUILDER_PATCH_PATHS_PROP + " " + oddrUaDeviceBuilderPatchPathArray[i]));
+                try {
+                    parser = SAXParserFactory.newInstance().newSAXParser();
+
+                } catch (ParserConfigurationException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+
+                } catch (SAXException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+                }
+
+                try {
+                    parser.parse(stream, deviceBuilderHandler);
+
+                } catch (Exception ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not parse DeviceBuilder input stream " + i));
+                }
+
+                try {
+                    stream.close();
+
+                } catch (IOException ex) {
+                    logger.warn("", ex);
+                }
             }
 
-            try {
-                parser = SAXParserFactory.newInstance().newSAXParser();
+        } else {
+            for (int i = 0; i < oddrUaDeviceBuilderPatchPathArray.length; i++) {
+                try {
+                    stream = new FileInputStream(new File(oddrUaDeviceBuilderPatchPathArray[i]));
 
-            } catch (ParserConfigurationException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+                } catch (IOException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_DEVICE_BUILDER_PATCH_PATHS_PROP + " " + oddrUaDeviceBuilderPatchPathArray[i]));
+                }
 
-            } catch (SAXException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
-            }
+                try {
+                    parser = SAXParserFactory.newInstance().newSAXParser();
 
-            try {
-                parser.parse(stream, deviceBuilderHandler);
+                } catch (ParserConfigurationException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
 
-            } catch (SAXException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not parse document: " + oddrUaDeviceBuilderPatchPathArray[i]));
+                } catch (SAXException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+                }
 
-            } catch (IOException ex) {
-                throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not open " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP + " :" + oddrUaDeviceBuilderPatchPathArray[i]));
-            }
+                try {
+                    parser.parse(stream, deviceBuilderHandler);
 
-            try {
-                stream.close();
+                } catch (SAXException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not parse document: " + oddrUaDeviceBuilderPatchPathArray[i]));
 
-            } catch (IOException ex) {
-                logger.warn("", ex);
+                } catch (IOException ex) {
+                    throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not open " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP + " :" + oddrUaDeviceBuilderPatchPathArray[i]));
+                }
+
+                try {
+                    stream.close();
+
+                } catch (IOException ex) {
+                    logger.warn("", ex);
+                }
             }
         }
 
         BrowserDatasourceHandler browserDatasourceHandler = new BrowserDatasourceHandler(vocabularyHolder);
 
         try {
-            stream = new FileInputStream(new File(oddrUaBrowserDatasourcePaths));
+            if (oddrUaBrowserDatasourceStream != null) {
+                stream = oddrUaBrowserDatasourceStream;
+            } else {
+                stream = new FileInputStream(new File(oddrUaBrowserDatasourcePaths));
+            }
 
         } catch (IOException ex) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_BROWSER_DATASOURCE_PATH_PROP + " " + oddrUaBrowserDatasourcePaths));
