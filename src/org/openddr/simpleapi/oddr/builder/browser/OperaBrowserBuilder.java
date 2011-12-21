@@ -45,14 +45,14 @@ public class OperaBrowserBuilder extends LayoutEngineBrowserBuilder {
 
         identified.setVendor("Opera");
         if (userAgent.getCompleteUserAgent().contains("Mobi")) {
-            identified.setModel("Mobile");
+            identified.setModel("Opera Mobile");
             confidence += 10;
 
         } else if (userAgent.getCompleteUserAgent().contains("Tablet")) {
-            identified.setModel("Tablet");
+            identified.setModel("Opera Tablet");
 
         } else {
-            identified.setModel("Browser");
+            identified.setModel("Opera");
         }
 
         identified.setVersion(userAgent.getOperaVersion());

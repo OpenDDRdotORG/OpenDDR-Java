@@ -25,37 +25,42 @@ import java.util.regex.Pattern;
 import org.openddr.simpleapi.oddr.model.UserAgent;
 import org.openddr.simpleapi.oddr.model.browser.Browser;
 
-public class AndroidMobileBrowserBuilder extends LayoutEngineBrowserBuilder {
+public class ChromeBrowserBuilder extends LayoutEngineBrowserBuilder {
 
-    private static final String VERSION_REGEXP = ".*Version/([0-9\\.]+).*?";
+    private static final String CHROME_VERSION_REGEXP = ".*Chrome.([0-9a-z\\.b]+).*";
     private static final String SAFARI_REGEXP = ".*Safari/([0-9\\.]+).*?";
-    private Pattern versionPattern = Pattern.compile(VERSION_REGEXP);
+    private Pattern chromeVersionPattern = Pattern.compile(CHROME_VERSION_REGEXP);
     private Pattern safariPattern = Pattern.compile(SAFARI_REGEXP);
 
     public boolean canBuild(UserAgent userAgent) {
-        return (userAgent.containsAndroid());
+        return (userAgent.getCompleteUserAgent().contains("Chrome"));
     }
 
     @Override
     protected Browser buildBrowser(UserAgent userAgent, String layoutEngine, String layoutEngineVersion, int hintedWidth, int hintedHeight) {
-        if (!userAgent.containsAndroid() || !userAgent.hasMozillaPattern() || userAgent.getCompleteUserAgent().contains("Fennec")) {
+        if (!(userAgent.hasMozillaPattern())) {
             return null;
         }
 
-        int confidence = 70;
+        int confidence = 60;
         Browser identified = new Browser();
 
         identified.setVendor("Google");
-        identified.setModel("Android Browser");
+        identified.setModel("Chrome");
+        identified.setVersion("-");
+        identified.setMajorRevision("-");
 
-        Matcher versionMatcher = versionPattern.matcher(userAgent.getCompleteUserAgent());
-        if (versionMatcher.matches()) {
-            if (versionMatcher.group(1) != null) {
-                identified.setVersion(versionMatcher.group(1));
-                String version[] = versionMatcher.group(1).split("\\.");
+        Matcher chromeMatcher = chromeVersionPattern.matcher(userAgent.getCompleteUserAgent());
+        if (chromeMatcher.matches()) {
+            if (chromeMatcher.group(1) != null) {
+                identified.setVersion(chromeMatcher.group(1));
+                String version[] = chromeMatcher.group(1).split("\\.");
 
                 if (version.length > 0) {
                     identified.setMajorRevision(version[0]);
+                    if (identified.getMajorRevision().length() == 0) {
+                        identified.setMajorRevision("1");
+                    }
                 }
 
                 if (version.length > 1) {
@@ -81,8 +86,7 @@ public class AndroidMobileBrowserBuilder extends LayoutEngineBrowserBuilder {
         if (layoutEngine != null) {
             identified.setLayoutEngine(layoutEngine);
             identified.setLayoutEngineVersion(layoutEngineVersion);
-
-            if (layoutEngine.equals(LayoutEngineBrowserBuilder.APPLEWEBKIT)) {
+            if (layoutEngine.equals(LayoutEngineBrowserBuilder.KHML)) {
                 confidence += 10;
             }
         }

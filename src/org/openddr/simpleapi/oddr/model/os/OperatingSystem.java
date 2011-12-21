@@ -71,6 +71,14 @@ public class OperatingSystem extends BuiltObject implements Comparable {
         this.nanoRevision = nanoRevision;
     }
 
+    public String getId() {
+        if (getModel() == null || getVendor() == null) {
+            return null;
+        }
+        String id = getVendor() + "." + getModel() + "." + getMajorRevision() + "." + getMinorRevision() + "." + getMicroRevision() + "." + getNanoRevision();
+        return id;
+    }
+
     //GETTERS
     //utility getter for significant oddr OS properties
     public String getModel() {

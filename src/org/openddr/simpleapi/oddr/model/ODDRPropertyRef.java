@@ -58,4 +58,12 @@ public class ODDRPropertyRef implements PropertyRef {
             return false;
         }
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 73 * hash + (this.pn != null ? this.pn.hashCode() : 0);
+        hash = 73 * hash + (this.aspectName != null ? this.aspectName.hashCode() : 0);
+        return hash;
+    }
 }

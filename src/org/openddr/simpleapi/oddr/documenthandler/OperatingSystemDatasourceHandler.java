@@ -20,43 +20,49 @@
  */
 package org.openddr.simpleapi.oddr.documenthandler;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
 import org.openddr.simpleapi.oddr.ODDRService;
 import org.openddr.simpleapi.oddr.ODDRVocabularyService;
-import org.openddr.simpleapi.oddr.model.device.Device;
+import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
 import org.openddr.simpleapi.oddr.vocabulary.VocabularyHolder;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class DeviceDatasourceHandler extends DefaultHandler {
+public class OperatingSystemDatasourceHandler extends DefaultHandler {
 
-    private static final String PROPERTY_ID = "id";
-    private static final String ELEMENT_DEVICE = "device";
+    private static final String ELEMENT_OPERATING_SYSTEM_DESCRIPTION = "operatingSystem";
     private static final String ELEMENT_PROPERTY = "property";
-    private static final String ATTRIBUTE_DEVICE_ID = "id";
-    private static final String ATTRIBUTE_DEVICE_PARENT_ID = "parentId";
+    private static final String ATTRIBUTE_BROWSER_ID = "id";
     private static final String ATTRIBUTE_PROPERTY_NAME = "name";
     private static final String ATTRIBUTE_PROPERTY_VALUE = "value";
     private String propertyName = null;
     private String propertyValue = null;
-    private Device device = null;
+    private OperatingSystem operatingSystem = null;
+    private String operatingSystemId = null;
     private Map properties = null;
-    private Map<String, Device> devices = null;
-    private boolean patching = false;
+    private Map<String, OperatingSystem> operatingSystems = null;
     private VocabularyHolder vocabularyHolder = null;
 
-    public DeviceDatasourceHandler() {
-        this.devices = new HashMap<String, Device>();
+    public OperatingSystemDatasourceHandler() {
+        this.operatingSystems = new TreeMap<String, OperatingSystem>(new Comparator<String>() {
+
+            public int compare(String keya, String keyb) {
+                return keya.compareTo(keyb);
+            }
+        });
     }
 
-    public DeviceDatasourceHandler(Map devices) {
-        this.devices = devices;
-    }
+    public OperatingSystemDatasourceHandler(VocabularyHolder vocabularyHolder) {
+        this.operatingSystems = new TreeMap<String, OperatingSystem>(new Comparator<String>() {
 
-    public DeviceDatasourceHandler(Map devices, VocabularyHolder vocabularyHolder) {
-        this.devices = devices;
+            public int compare(String keya, String keyb) {
+                return keya.compareTo(keyb);
+            }
+        });
         try {
             vocabularyHolder.existVocabulary(ODDRVocabularyService.ODDR_LIMITED_VOCABULARY_IRI);
             this.vocabularyHolder = vocabularyHolder;
@@ -73,48 +79,37 @@ public class DeviceDatasourceHandler extends DefaultHandler {
 
     @Override
     public void startElement(String uri, String localName, String name, Attributes attributes) throws SAXException {
-        if (ELEMENT_DEVICE.equals(name)) {
-            startDeviceElement(attributes);
+        if (ELEMENT_OPERATING_SYSTEM_DESCRIPTION.equals(name)) {
+            startOperatingSystemDescription(attributes);
 
         } else if (ELEMENT_PROPERTY.equals(name)) {
-            startPropertyElement(attributes);
+            startProperty(attributes);
         }
-    }
-
-    @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
     }
 
     @Override
     public void endElement(String uri, String localName, String name) throws SAXException {
-        if (ELEMENT_DEVICE.equals(name)) {
-            endDeviceElement();
+        if (ELEMENT_OPERATING_SYSTEM_DESCRIPTION.equals(name)) {
+            endOperatingSystemDescription();
 
         } else if (ELEMENT_PROPERTY.equals(name)) {
-            endPropertyElement();
+            endProperty();
         }
     }
 
-    @Override
-    public void endDocument() throws SAXException {
-    }
-
-    private void startDeviceElement(Attributes attributes) {
-        device = new Device();
-        device.setId(attributes.getValue(ATTRIBUTE_DEVICE_ID));
-        if (attributes.getValue(ATTRIBUTE_DEVICE_PARENT_ID) != null) {
-            device.setParentId(attributes.getValue(ATTRIBUTE_DEVICE_PARENT_ID));
-        }
+    private void startOperatingSystemDescription(Attributes attributes) {
         properties = new HashMap();
+        operatingSystemId = attributes.getValue(ATTRIBUTE_BROWSER_ID);
+        operatingSystem = new OperatingSystem(properties);
     }
 
-    private void startPropertyElement(Attributes attributes) {
+    private void startProperty(Attributes attributes) {
         propertyName = attributes.getValue(ATTRIBUTE_PROPERTY_NAME);
         propertyValue = attributes.getValue(ATTRIBUTE_PROPERTY_VALUE);
 
         if (vocabularyHolder != null) {
             try {
-                vocabularyHolder.existProperty(propertyName, ODDRService.ASPECT_DEVICE, ODDRVocabularyService.ODDR_LIMITED_VOCABULARY_IRI);
+                vocabularyHolder.existProperty(propertyName, ODDRService.ASPECT_OPERATIVE_SYSTEM, ODDRVocabularyService.ODDR_LIMITED_VOCABULARY_IRI);
                 properties.put(propertyName.intern(), propertyValue);
 
             } catch (Exception ex) {
@@ -126,31 +121,19 @@ public class DeviceDatasourceHandler extends DefaultHandler {
         }
     }
 
-    private void endDeviceElement() {
-        if (devices.containsKey(device.getId())) {
-            if (patching) {
-                devices.get(device.getId()).getPropertiesMap().putAll(properties);
-                return;
+    private void endProperty() {
+    }
 
-            } else {
-                //TODO: WARNING already present
-            }
-        }
-        properties.put(PROPERTY_ID, device.getId());
-        device.putPropertiesMap(properties);
-        devices.put(device.getId(), device);
-        device = null;
+    private void endOperatingSystemDescription() {
+        operatingSystems.put(operatingSystemId, operatingSystem);
         properties = null;
     }
 
-    private void endPropertyElement() {
+    @Override
+    public void endDocument() throws SAXException {
     }
 
-    public Map<String, Device> getDevices() {
-        return devices;
-    }
-
-    public void setPatching(boolean patching) {
-        this.patching = patching;
+    public Map<String, OperatingSystem> getOperatingSystems() {
+        return operatingSystems;
     }
 }

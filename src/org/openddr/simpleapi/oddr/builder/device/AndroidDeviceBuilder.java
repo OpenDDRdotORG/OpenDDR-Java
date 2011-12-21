@@ -25,12 +25,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.openddr.simpleapi.oddr.model.device.Device;
 import org.openddr.simpleapi.oddr.model.UserAgent;
 
 public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
 
+    private static final String BUILD_HASH_REGEXP = ".*Build/([^ \\)]*).*";
+    private Pattern buildHashPattern = Pattern.compile(BUILD_HASH_REGEXP);
     private Map<String, Device> devices;
 
     public AndroidDeviceBuilder() {
@@ -75,7 +78,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
     }
 
     private Device elaborateAndroidDeviceWithToken(UserAgent userAgent, String token) {
-        if (userAgent.hasMozillaPattern()) {
+        if (userAgent.hasMozillaPattern() || userAgent.hasOperaPattern()) {
             int subtract = 0;
             String currentToken = token;
 
@@ -87,6 +90,8 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                 return null;
             }
 
+            String patternElementInsideClean = cleanPatternElementInside(userAgent.getPatternElementsInside());
+
             Pattern currentPattern = null;
 
             for (int i = 0; i <= 1; i++) {
@@ -95,7 +100,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
 
                 currentPattern = Pattern.compile("(?i).*" + currentToken + ".?Build/.*");
-                if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//&& userAgent.getPatternElementsInside().matches(".*" + currentToken + ".?Build/.*")) {
+                if (patternElementInsideClean != null && currentPattern.matcher(patternElementInsideClean).matches()) {//&& userAgent.getPatternElementsInside().matches(".*" + currentToken + ".?Build/.*")) {
                     String deviceId = (String) orderedRules.get(token);
 
                     try {
@@ -120,7 +125,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                     }
                 }
 
-                if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken)) {
+                if (patternElementInsideClean != null && currentPattern.matcher(patternElementInsideClean).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken)) {
                     String deviceId = (String) orderedRules.get(token);
 
                     try {
@@ -133,7 +138,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
 
                 currentPattern = Pattern.compile("(?i).*" + currentToken + ".?;.*");
-                if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".?;.*")) {
+                if (patternElementInsideClean != null && currentPattern.matcher(patternElementInsideClean).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".?;.*")) {
                     String deviceId = (String) orderedRules.get(token);
 
                     try {
@@ -151,7 +156,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                 } else {
                     currentPattern = Pattern.compile("(?i).*" + currentToken + ".*");
                 }
-                if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".*")) {
+                if (patternElementInsideClean != null && currentPattern.matcher(patternElementInsideClean).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".*")) {
                     String deviceId = (String) orderedRules.get(token);
 
                     try {
@@ -200,5 +205,19 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                 throw new IllegalStateException("unable to find device with id: " + devId + "in devices");
             }
         }
+    }
+
+    private String cleanPatternElementInside(String patternElementsInside) {
+        String patternElementInsideClean = patternElementsInside;
+
+        Matcher buildHashMatcher = buildHashPattern.matcher(patternElementInsideClean);
+
+        if (buildHashMatcher.find()) {
+            String build = buildHashMatcher.group(1);
+            patternElementInsideClean = patternElementInsideClean.replaceAll("Build/" + build, "Build/");
+        }
+        patternElementInsideClean = patternElementInsideClean.replaceAll("Android", "");
+        
+        return patternElementInsideClean;
     }
 }

@@ -60,11 +60,13 @@ public class BrowserIdentificator implements Identificator {
             if (builder.canBuild(userAgent)) {
                 Browser browser = (Browser) builder.build(userAgent, confidenceTreshold);
                 if (browser != null) {
-                    String bestID = getClosestKnownBrowserID(browser.getId());
-                    if (bestID != null) {
-                        browser.putPropertiesMap(browserCapabilities.get(bestID).getPropertiesMap());
-                        if (!bestID.equals(browser.getId())) {
-                            browser.setConfidence(browser.getConfidence() - 15);
+                    if (browserCapabilities != null) {
+                        String bestID = getClosestKnownBrowserID(browser.getId());
+                        if (bestID != null) {
+                            browser.putPropertiesMap(browserCapabilities.get(bestID).getPropertiesMap());
+                            if (!bestID.equals(browser.getId())) {
+                                browser.setConfidence(browser.getConfidence() - 15);
+                            }
                         }
                     }
                     return browser;

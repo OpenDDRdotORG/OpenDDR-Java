@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 
 public class UserAgent {
 
-    public static final String MOZILLA_AND_OPERA_PATTERN = "(.*?)((?:Mozilla)|(?:Opera))/(\\d+\\.\\d+).*?\\(((?:.*?)(?:.*?\\(.*?\\))*(?:.*?))\\)(.*)";
+    public static final String MOZILLA_AND_OPERA_PATTERN = "(.*?)((?:Mozilla)|(?:Opera))[/ ](\\d+\\.\\d+).*?\\(((?:.*?)(?:.*?\\(.*?\\))*(?:.*?))\\)(.*)";
     public static final int INDEX_MOZILLA_PATTERN_GROUP_PRE = 1;
     public static final int INDEX_MOZILLA_PATTERN_GROUP_INSIDE = 4;
     public static final int INDEX_MOZILLA_PATTERN_GROUP_POST = 5;
@@ -39,7 +39,7 @@ public class UserAgent {
     private String mozillaVersion;
     private String operaVersion;
     private boolean containsAndroid;
-    private boolean containsBlackBerry;
+    private boolean containsBlackBerryOrRim;
     private boolean containsIOSDevices;
     private boolean containsMSIE;
     private boolean containsSymbian;
@@ -115,17 +115,17 @@ public class UserAgent {
 
             } else {
                 containsIOSDevices = false;
-                if (userAgent.matches(".*[Bb]lack.?[Bb]erry.*")) {
-                    containsBlackBerry = true;
+                if (userAgent.matches(".*[Bb]lack.?[Bb]erry.*|.*RIM.?Tablet.?OS.*")) {
+                    containsBlackBerryOrRim = true;
 
                 } else {
-                    containsBlackBerry = false;
-                    if (userAgent.contains("Symbian")) {
+                    containsBlackBerryOrRim = false;
+                    if (userAgent.matches(".*Symbian.*|.*SymbOS.*|.*Series.?60.*")) {
                         containsSymbian = true;
 
                     } else {
                         containsSymbian = false;
-                        if (userAgent.matches(".*Windows.?(?:(?:CE)|(?:Phone)|(?:NT)).*")) {
+                        if (userAgent.matches(".*Windows.?(?:(?:CE)|(?:Phone)|(?:NT)|(?:Mobile)).*")) {
                             containsWindowsPhone = true;
 
                         } else {
@@ -152,8 +152,8 @@ public class UserAgent {
         return containsAndroid;
     }
 
-    public boolean containsBlackBerry() {
-        return containsBlackBerry;
+    public boolean containsBlackBerryOrRim() {
+        return containsBlackBerryOrRim;
     }
 
     public boolean containsIOSDevices() {

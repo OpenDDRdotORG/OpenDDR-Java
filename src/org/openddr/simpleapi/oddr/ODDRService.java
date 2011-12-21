@@ -42,6 +42,7 @@ import org.openddr.simpleapi.oddr.builder.os.DefaultOSBuilder;
 import org.openddr.simpleapi.oddr.documenthandler.BrowserDatasourceHandler;
 import org.openddr.simpleapi.oddr.documenthandler.DeviceBuilderHandler;
 import org.openddr.simpleapi.oddr.documenthandler.DeviceDatasourceHandler;
+import org.openddr.simpleapi.oddr.documenthandler.OperatingSystemDatasourceHandler;
 import org.openddr.simpleapi.oddr.identificator.BrowserIdentificator;
 import org.openddr.simpleapi.oddr.identificator.DeviceIdentificator;
 import org.openddr.simpleapi.oddr.identificator.OSIdentificator;
@@ -78,11 +79,13 @@ public class ODDRService implements Service {
     public static final String ODDR_UA_DEVICE_BUILDER_PATCH_PATHS_PROP = "oddr.ua.device.builder.patch.paths";
     public static final String ODDR_UA_DEVICE_DATASOURCE_PATCH_PATHS_PROP = "oddr.ua.device.datasource.patch.paths";
     public static final String ODDR_UA_BROWSER_DATASOURCE_PATH_PROP = "oddr.ua.browser.datasource.path";
+    public static final String ODDR_UA_OPERATINGSYSTEM_DATASOURCE_PATH_PROP = "oddr.ua.operatingSystem.datasource.path";
     public static final String ODDR_UA_DEVICE_BUILDER_STREAM_PROP = "oddr.ua.device.builder.stream";
     public static final String ODDR_UA_DEVICE_DATASOURCE_STREAM_PROP = "oddr.ua.device.datasource.stream";
     public static final String ODDR_UA_DEVICE_BUILDER_PATCH_STREAMS_PROP = "oddr.ua.device.builder.patch.streams";
     public static final String ODDR_UA_DEVICE_DATASOURCE_PATCH_STREAMS_PROP = "oddr.ua.device.datasource.patch.streams";
     public static final String ODDR_UA_BROWSER_DATASOURCE_STREAM_PROP = "oddr.ua.browser.datasource.stream";
+    public static final String ODDR_UA_OPERATINGSYSTEM_DATASOURCE_STREAM_PROP = "oddr.ua.operatingSystem.datasource.stream";
     public static final String ODDR_THRESHOLD_PROP = "oddr.threshold";
     public static final String ODDR_VOCABULARY_IRI = "oddr.vocabulary.device";
     private static final String ODDR_API_VERSION = "1.0.0";
@@ -91,7 +94,7 @@ public class ODDRService implements Service {
     private String defaultVocabularyIRI = null;
     private DeviceIdentificator deviceIdentificator = null;
     private BrowserIdentificator browserIdentificator = null;
-    private OSIdentificator osIdentificator;
+    private OSIdentificator osIdentificator = null;
     private VocabularyHolder vocabularyHolder = null;
     private int threshold = ODDR_DEFAULT_THRESHOLD;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
@@ -113,12 +116,14 @@ public class ODDRService implements Service {
         String oddrUaDeviceBuilderPatchPaths = prprts.getProperty(ODDR_UA_DEVICE_BUILDER_PATCH_PATHS_PROP);
         String oddrUaDeviceDatasourcePatchPaths = prprts.getProperty(ODDR_UA_DEVICE_DATASOURCE_PATCH_PATHS_PROP);
         String oddrUaBrowserDatasourcePaths = prprts.getProperty(ODDR_UA_BROWSER_DATASOURCE_PATH_PROP);
+        String oddrUaOperatingSystemDatasourcePaths = prprts.getProperty(ODDR_UA_OPERATINGSYSTEM_DATASOURCE_PATH_PROP);
 
         InputStream oddrUaDeviceBuilderStream = null;
         InputStream oddrUaDeviceDatasourceStream = null;
         InputStream[] oddrUaDeviceBuilderPatchStreams = null;
         InputStream[] oddrUaDeviceDatasourcePatchStreams = null;
         InputStream oddrUaBrowserDatasourceStream = null;
+        InputStream oddrUaOperatingSystemDatasourceStream = null;
 
         try {
             oddrUaDeviceBuilderStream = (InputStream) prprts.get(ODDR_UA_DEVICE_BUILDER_STREAM_PROP);
@@ -144,6 +149,11 @@ public class ODDRService implements Service {
             oddrUaBrowserDatasourceStream = (InputStream) prprts.get(ODDR_UA_BROWSER_DATASOURCE_STREAM_PROP);
         } catch (Exception ex) {
             oddrUaBrowserDatasourceStream = null;
+        }
+        try {
+            oddrUaOperatingSystemDatasourceStream = (InputStream) prprts.get(ODDR_UA_OPERATINGSYSTEM_DATASOURCE_STREAM_PROP);
+        } catch (Exception ex) {
+            oddrUaOperatingSystemDatasourceStream = null;
         }
 
         String oddrThreshold = prprts.getProperty(ODDR_THRESHOLD_PROP);
@@ -184,6 +194,10 @@ public class ODDRService implements Service {
 
         if ((oddrUaBrowserDatasourcePaths == null || oddrUaBrowserDatasourcePaths.trim().length() == 0) && oddrUaBrowserDatasourceStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_BROWSER_DATASOURCE_PATH_PROP));
+        }
+
+        if ((oddrUaOperatingSystemDatasourcePaths == null || oddrUaOperatingSystemDatasourcePaths.trim().length() == 0) && oddrUaOperatingSystemDatasourcePaths == null) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_OPERATINGSYSTEM_DATASOURCE_PATH_PROP));
         }
 
         if (oddrThreshold == null || oddrThreshold.trim().length() == 0) {
@@ -462,17 +476,59 @@ public class ODDRService implements Service {
             logger.warn("", ex);
         }
 
+        OperatingSystemDatasourceHandler operatingSystemDatasourceHandler = new OperatingSystemDatasourceHandler(vocabularyHolder);
+
+        try {
+            if (oddrUaOperatingSystemDatasourceStream != null) {
+                stream = oddrUaOperatingSystemDatasourceStream;
+            } else {
+                stream = new FileInputStream(new File(oddrUaOperatingSystemDatasourcePaths));
+            }
+
+        } catch (IOException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_OPERATINGSYSTEM_DATASOURCE_PATH_PROP + " " + oddrUaOperatingSystemDatasourcePaths));
+        }
+
+        try {
+            parser = SAXParserFactory.newInstance().newSAXParser();
+
+        } catch (ParserConfigurationException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+
+        } catch (SAXException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalStateException("Can not instantiate SAXParserFactory.newInstance().newSAXParser()"));
+        }
+
+        try {
+            parser.parse(stream, operatingSystemDatasourceHandler);
+
+        } catch (SAXException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not parse document: " + oddrUaOperatingSystemDatasourcePaths));
+
+        } catch (IOException ex) {
+            throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new RuntimeException("Can not open " + ODDR_UA_OPERATINGSYSTEM_DATASOURCE_PATH_PROP + " :" + oddrUaOperatingSystemDatasourcePaths));
+        }
+
+        try {
+            stream.close();
+
+        } catch (IOException ex) {
+            logger.warn("", ex);
+        }
+
         deviceIdentificator = new DeviceIdentificator(deviceBuilderHandler.getBuilders(), deviceDatasourceHandler.getDevices());
         deviceIdentificator.completeInit();
 
         browserIdentificator = new BrowserIdentificator(new Builder[]{DefaultBrowserBuilder.getInstance()}, browserDatasourceHandler.getBrowsers());
         browserIdentificator.completeInit();
 
-        osIdentificator = new OSIdentificator(new Builder[]{DefaultOSBuilder.getInstance()}, null);
+        osIdentificator = new OSIdentificator(new Builder[]{DefaultOSBuilder.getInstance()}, operatingSystemDatasourceHandler.getOperatingSystems());
+        osIdentificator.completeInit();
 
         deviceDatasourceHandler = null;
         deviceBuilderHandler = null;
         browserDatasourceHandler = null;
+        operatingSystemDatasourceHandler = null;
 
         this.defaultVocabularyIRI = defaultVocabularyIRI;
 

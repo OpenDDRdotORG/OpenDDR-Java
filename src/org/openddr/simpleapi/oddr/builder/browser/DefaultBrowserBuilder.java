@@ -55,7 +55,14 @@ public class DefaultBrowserBuilder implements Builder {
                     new ObigoBrowserBuilder(),
                     new OperaBrowserBuilder(),
                     new IEMobileBrowserBuilder(),
-                    new InternetExplorerBrowserBuilder()
+                    new NokiaBrowserBuilder(),
+                    new BlackBerryBrowserBuilder(),
+                    new FennecBrowserBuilder(),
+                    new InternetExplorerBrowserBuilder(),
+                    new ChromeBrowserBuilder(),
+                    new FirefoxBrowserBuilder(),
+                    new SafariBrowserBuilder(),
+                    new KonquerorBrowserBuilder(),
                 };
     }
 

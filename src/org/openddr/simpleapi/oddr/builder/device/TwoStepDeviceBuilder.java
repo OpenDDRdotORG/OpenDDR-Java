@@ -95,9 +95,19 @@ public class TwoStepDeviceBuilder extends OrderedTokenDeviceBuilder {
     private Device elaborateTwoStepDeviceWithToken(UserAgent userAgent, String step1Token, String step2Token) {
         int maxLittleTokensDistance = 4;
         int maxBigTokensDistance = 8;
-        int confidence = 100;
+        int confidence;
 
-        if (!userAgent.getCompleteUserAgent().matches("(?i).*" + step2Token + ".*")) {
+        String originalToken = step2Token;
+        String looseToken = step2Token.replaceAll("[ _/-]", ".?");
+
+        if (userAgent.getCompleteUserAgent().matches("(?i).*" + step2Token + ".*")) {
+            confidence = 100;
+
+        } else if (userAgent.getCompleteUserAgent().matches("(?i).*" + looseToken + ".*")) {
+            step2Token = looseToken;
+            confidence = 90;
+
+        } else {
             return null;
         }
 
@@ -124,7 +134,7 @@ public class TwoStepDeviceBuilder extends OrderedTokenDeviceBuilder {
                     confidence -= 10;
                 }
 
-                String deviceId = ((Map<String, String>) orderedRules.get(step1Token)).get(step2Token);
+                String deviceId = ((Map<String, String>) orderedRules.get(step1Token)).get(originalToken);
 
                 try {
                     Device retDevice = (Device) devices.get(deviceId).clone();
@@ -147,7 +157,7 @@ public class TwoStepDeviceBuilder extends OrderedTokenDeviceBuilder {
 
                 confidence -= (betweenTokensLength * 4);
 
-                String deviceId = ((Map<String, String>) orderedRules.get(step1Token)).get(step2Token);
+                String deviceId = ((Map<String, String>) orderedRules.get(step1Token)).get(originalToken);
 
                 try {
                     Device retDevice = (Device) devices.get(deviceId).clone();

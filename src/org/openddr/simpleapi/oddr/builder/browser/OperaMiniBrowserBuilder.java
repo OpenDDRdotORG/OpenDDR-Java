@@ -27,7 +27,7 @@ import org.openddr.simpleapi.oddr.model.browser.Browser;
 
 public class OperaMiniBrowserBuilder extends LayoutEngineBrowserBuilder {
 
-    private static final String VERSION_REGEXP = ".*?Opera Mini/(?:att/)?v?((\\d+)\\.(\\d+)\\.(\\d+)(?:\\.(\\d+))?).*?";
+    private static final String VERSION_REGEXP = ".*?Opera Mini/(?:att/)?v?((\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?).*?";
     private static final String BUILD_REGEXP = ".*?Opera Mini/(?:att/)?v?.*?/(.*?);.*";
     private Pattern versionPattern = Pattern.compile(VERSION_REGEXP);
     private Pattern buildPattern = Pattern.compile(BUILD_REGEXP);
@@ -50,7 +50,7 @@ public class OperaMiniBrowserBuilder extends LayoutEngineBrowserBuilder {
         Browser identified = new Browser();
 
         identified.setVendor("Opera");
-        identified.setModel("Mini");
+        identified.setModel("Opera Mini");
 
         if (versionMatcher.group(1) != null) {
             identified.setVersion(versionMatcher.group(1));

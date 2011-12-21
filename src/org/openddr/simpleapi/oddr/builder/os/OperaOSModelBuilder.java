@@ -24,44 +24,31 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.openddr.simpleapi.oddr.builder.Builder;
+import org.openddr.simpleapi.oddr.builder.device.WinPhoneDeviceBuilder;
 import org.openddr.simpleapi.oddr.builder.os.mozilla.AndroidMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.BadaMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.BlackBerryMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.BrewMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.IOSMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.LinuxMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.MacOSXMozillaSubBuilder;
 import org.openddr.simpleapi.oddr.builder.os.mozilla.SymbianMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.WebOSMozillaSubBuilder;
 import org.openddr.simpleapi.oddr.builder.os.mozilla.WinCEMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.WinPhoneMozillaSubBuilder;
+import org.openddr.simpleapi.oddr.model.BuiltObject;
 import org.openddr.simpleapi.oddr.model.UserAgent;
 import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
 
-public class MozillaOSModelBuilder implements Builder {
+public class OperaOSModelBuilder implements Builder {
 
     private Builder[] builders = {
-        new IOSMozillaSubBuilder(),
         new AndroidMozillaSubBuilder(),
-        new WinPhoneMozillaSubBuilder(),
-        new BlackBerryMozillaSubBuilder(),
         new SymbianMozillaSubBuilder(),
         new WinCEMozillaSubBuilder(),
-        new BadaMozillaSubBuilder(),
-        new BrewMozillaSubBuilder(),
-        new WebOSMozillaSubBuilder(),
-        new LinuxMozillaSubBuilder(),
-        new MacOSXMozillaSubBuilder()
+        new WinPhoneDeviceBuilder()
     };
 
     public boolean canBuild(UserAgent userAgent) {
-        if (userAgent.hasMozillaPattern()) {
+        if (userAgent.hasOperaPattern()) {
             return true;
         }
         return false;
     }
 
-    public OperatingSystem build(UserAgent userAgent, int confidenceTreshold) {
+    public BuiltObject build(UserAgent userAgent, int confidenceTreshold) {
         List<OperatingSystem> founds = new ArrayList<OperatingSystem>();
         OperatingSystem found = null;
         for (Builder builder : builders) {

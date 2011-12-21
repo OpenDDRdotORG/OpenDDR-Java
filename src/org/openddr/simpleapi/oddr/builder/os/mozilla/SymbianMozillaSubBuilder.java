@@ -28,7 +28,7 @@ import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
 
 public class SymbianMozillaSubBuilder implements Builder {
 
-    private static final String VERSION_REGEXP = ".*Series60/(\\d+)(?:[\\.\\- ](\\d+))?(?:[\\.\\- ](\\d+))?.*";
+    private static final String VERSION_REGEXP = ".*Series.?60/(\\d+)(?:[\\.\\- ](\\d+))?(?:[\\.\\- ](\\d+))?.*";
     private static final String VERSION_EXTRA = ".*Symbian(?:OS)?/(.*)";
     private Pattern versionPattern = Pattern.compile(VERSION_REGEXP);
     private Pattern versionExtraPattern = Pattern.compile(VERSION_EXTRA);

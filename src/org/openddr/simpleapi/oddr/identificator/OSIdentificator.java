@@ -24,16 +24,20 @@ import java.util.Map;
 import org.openddr.simpleapi.oddr.builder.Builder;
 import org.openddr.simpleapi.oddr.model.UserAgent;
 import org.openddr.simpleapi.oddr.model.UserAgentFactory;
-import org.openddr.simpleapi.oddr.model.browser.Browser;
 import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.ddr.simple.Evidence;
 
 public class OSIdentificator implements Identificator {
 
     private Builder[] builders;
+    private Map<String, OperatingSystem> operatingSystemCapabilities;
+    protected final Logger logger = LoggerFactory.getLogger(getClass());
 
-    public OSIdentificator(Builder[] builders, Map<String, Browser> browserCapabilities) {
+    public OSIdentificator(Builder[] builders, Map<String, OperatingSystem> operatingSystemCapabilities) {
         this.builders = builders;
+        this.operatingSystemCapabilities = operatingSystemCapabilities;
     }
 
     public OperatingSystem get(String userAgent, int confidenceTreshold) {
@@ -54,11 +58,62 @@ public class OSIdentificator implements Identificator {
             if (builder.canBuild(userAgent)) {
                 OperatingSystem os = (OperatingSystem) builder.build(userAgent, confidenceTreshold);
                 if (os != null) {
+                    if (operatingSystemCapabilities != null) {
+                        String bestID = getClosestKnownBrowserID(os.getId());
+                        if (bestID != null) {
+                            os.putPropertiesMap(operatingSystemCapabilities.get(bestID).getPropertiesMap());
+                            if (!bestID.equals(os.getId())) {
+                                os.setConfidence(os.getConfidence() - 15);
+                            }
+                        }
+                    }
                     return os;
                 }
             }
         }
         return null;
+    }
+
+    private String getClosestKnownBrowserID(String actualOperatingSystemID) {
+        if (actualOperatingSystemID == null) {
+            return null;
+        }
+
+        int idx = actualOperatingSystemID.indexOf(".");
+
+        if (idx < 0) {
+            logger.error("SHOULD NOT BE HERE, PLEASE CHECK BROWSER DOCUMENT(1)");
+            logger.debug(actualOperatingSystemID);
+            return null;
+
+        } else {
+            idx++;
+        }
+        idx = actualOperatingSystemID.indexOf(".", idx);
+
+        if (idx < 0) {
+            logger.error("SHOULD NOT BE HERE, PLEASE CHECK BROWSER DOCUMENT(2)" + idx);
+            logger.debug(actualOperatingSystemID);
+            return null;
+
+        } else {
+            idx++;
+        }
+
+        String bestID = null;
+        for (String listOperatingSystemID : operatingSystemCapabilities.keySet()) {
+            if (listOperatingSystemID.equals(actualOperatingSystemID)) {
+                return actualOperatingSystemID;
+            }
+
+            if (listOperatingSystemID.length() > idx && listOperatingSystemID.substring(0, idx).equals(actualOperatingSystemID.substring(0, idx))) {
+                if (listOperatingSystemID.compareTo(actualOperatingSystemID) <= 0) {
+                    bestID = listOperatingSystemID;
+                }
+            }
+        }
+
+        return bestID;
     }
 
     public void completeInit() {
