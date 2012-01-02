@@ -32,9 +32,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.MapContext;
 import org.openddr.simpleapi.oddr.builder.Builder;
 import org.openddr.simpleapi.oddr.builder.browser.DefaultBrowserBuilder;
 import org.openddr.simpleapi.oddr.builder.device.DeviceBuilder;
@@ -46,6 +52,7 @@ import org.openddr.simpleapi.oddr.documenthandler.OperatingSystemDatasourceHandl
 import org.openddr.simpleapi.oddr.identificator.BrowserIdentificator;
 import org.openddr.simpleapi.oddr.identificator.DeviceIdentificator;
 import org.openddr.simpleapi.oddr.identificator.OSIdentificator;
+import org.openddr.simpleapi.oddr.model.BufferedODDRHTTPEvidence;
 import org.openddr.simpleapi.oddr.model.device.Device;
 import org.openddr.simpleapi.oddr.model.ODDRHTTPEvidence;
 import org.openddr.simpleapi.oddr.model.ODDRPropertyName;
@@ -74,6 +81,7 @@ public class ODDRService implements Service {
     public static final String ASPECT_DEVICE = "device";
     public static final String ASPECT_WEB_BROWSER = "webBrowser";
     public static final String ASPECT_OPERATIVE_SYSTEM = "operativeSystem";
+    public static final String ASPECT_GROUP = "group";
     public static final String ODDR_UA_DEVICE_BUILDER_PATH_PROP = "oddr.ua.device.builder.path";
     public static final String ODDR_UA_DEVICE_DATASOURCE_PATH_PROP = "oddr.ua.device.datasource.path";
     public static final String ODDR_UA_DEVICE_BUILDER_PATCH_PATHS_PROP = "oddr.ua.device.builder.patch.paths";
@@ -97,6 +105,8 @@ public class ODDRService implements Service {
     private OSIdentificator osIdentificator = null;
     private VocabularyHolder vocabularyHolder = null;
     private int threshold = ODDR_DEFAULT_THRESHOLD;
+    private static final String GROUP_REGEXPR = "\\$([^ ]+)";
+    private Pattern groupRegexprPattern = Pattern.compile(GROUP_REGEXPR);
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     public void initialize(String defaultVocabularyIRI, Properties prprts) throws NameException, InitializationException {
@@ -594,10 +604,10 @@ public class ODDRService implements Service {
         boolean deviceIdentified = false;
         boolean browserIdentified = false;
         boolean osIdentified = false;
-
         UserAgent deviceUA = null;
         UserAgent browserUA = null;
 
+        JexlEngine jexl = new JexlEngine();
         ODDRPropertyValues ret = new ODDRPropertyValues();
         Map<String, Vocabulary> vocabularies = vocabularyHolder.getVocabularies();
         Set<String> vocabularyKeys = vocabularies.keySet();
@@ -615,7 +625,15 @@ public class ODDRService implements Service {
                             if (deviceUA == null) {
                                 deviceUA = UserAgentFactory.newDeviceUserAgent(evdnc);
                             }
-                            deviceFound = deviceIdentificator.get(deviceUA, this.threshold);
+                            if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                                deviceFound = ((BufferedODDRHTTPEvidence) evdnc).getDeviceFound();
+                            }
+                            if (deviceFound == null) {
+                                deviceFound = deviceIdentificator.get(deviceUA, this.threshold);
+                            }
+                            if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                                ((BufferedODDRHTTPEvidence) evdnc).setDeviceFound(deviceFound);
+                            }
                             deviceIdentified = true;
                         }
                         String property = null;
@@ -633,7 +651,16 @@ public class ODDRService implements Service {
                             if (browserUA == null) {
                                 browserUA = UserAgentFactory.newBrowserUserAgent(evdnc);
                             }
-                            browserFound = browserIdentificator.get(browserUA, this.threshold);
+                            if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                                browserFound = ((BufferedODDRHTTPEvidence) evdnc).getBrowserFound();
+                            }
+                            if (browserFound == null) {
+                                browserFound = browserIdentificator.get(browserUA, this.threshold);
+                            }
+                            if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                                ((BufferedODDRHTTPEvidence) evdnc).setBrowserFound(browserFound);
+                            }
+
                             browserIdentified = true;
                         }
                         String property = null;
@@ -651,7 +678,16 @@ public class ODDRService implements Service {
                             if (deviceUA == null) {
                                 deviceUA = UserAgentFactory.newDeviceUserAgent(evdnc);
                             }
-                            osFound = osIdentificator.get(deviceUA, this.threshold);
+                            if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                                osFound = ((BufferedODDRHTTPEvidence) evdnc).getOsFound();
+                            }
+                            if (osFound == null) {
+                                osFound = osIdentificator.get(deviceUA, this.threshold);
+                            }
+                            if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                                ((BufferedODDRHTTPEvidence) evdnc).setOsFound(osFound);
+                            }
+
                             osIdentified = true;
                         }
                         String property = null;
@@ -663,6 +699,27 @@ public class ODDRService implements Service {
                             ret.addProperty(new ODDRPropertyValue(null, properties.get(propertyKey).getType(), propertyRef));
                         }
                         continue;
+
+                    } else if (ASPECT_GROUP.equals(propertyRef.getAspectName())) {
+                        try {
+                            String jexlExp = properties.get(propertyKey).getExpr();
+                            Matcher m = groupRegexprPattern.matcher(jexlExp);
+                            while (m.find()) {
+                                String id = m.group(1);
+                                String propertyValueString = null;
+                                PropertyValue propertyValue = getPropertyValue(evdnc, vocabulary.getVocabularyVariables().get(id).getName(), vocabulary.getVocabularyVariables().get(id).getAspect(), vocabulary.getVocabularyVariables().get(id).getVocabulary());
+                                propertyValueString = (propertyValue.exists() ? propertyValue.getString() : "-");
+                                String toReplace = "$" + id;
+                                jexlExp = jexlExp.replaceAll(Matcher.quoteReplacement(toReplace), "'" + propertyValueString + "'");
+                            }
+                            Expression e = jexl.createExpression(jexlExp);
+                            JexlContext jc = new MapContext();
+                            Object o = e.evaluate(jc);
+                            ret.addProperty(new ODDRPropertyValue(o.toString(), properties.get(propertyKey).getType(), propertyRef));
+
+                        } catch (Exception ex) {
+                            throw new RuntimeException(ex);
+                        }
                     }
                 }
             }
@@ -681,16 +738,28 @@ public class ODDRService implements Service {
         UserAgent deviceUA = null;
         UserAgent browserUA = null;
 
+        JexlEngine jexl = new JexlEngine();
         ODDRPropertyValues ret = new ODDRPropertyValues();
+        Map<String, Vocabulary> vocabularies = vocabularyHolder.getVocabularies();
 
         for (PropertyRef propertyRef : prs) {
             VocabularyProperty vocabularyProperty = vocabularyHolder.existProperty(propertyRef.getLocalPropertyName(), propertyRef.getAspectName(), propertyRef.getNamespace());
+            Vocabulary vocabulary = vocabularies.get(propertyRef.getNamespace());
             if (ASPECT_DEVICE.equals(propertyRef.getAspectName())) {
                 if (!deviceIdentified) {
                     if (deviceUA == null) {
                         deviceUA = UserAgentFactory.newDeviceUserAgent(evdnc);
                     }
-                    deviceFound = deviceIdentificator.get(deviceUA, this.threshold);
+                    if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                        deviceFound = ((BufferedODDRHTTPEvidence) evdnc).getDeviceFound();
+                    }
+                    if (deviceFound == null) {
+                        deviceFound = deviceIdentificator.get(deviceUA, this.threshold);
+                    }
+                    if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                        ((BufferedODDRHTTPEvidence) evdnc).setDeviceFound(deviceFound);
+                    }
+
                     deviceIdentified = true;
                 }
                 String property = null;
@@ -710,7 +779,15 @@ public class ODDRService implements Service {
                     if (browserUA == null) {
                         browserUA = UserAgentFactory.newBrowserUserAgent(evdnc);
                     }
-                    browserFound = browserIdentificator.get(browserUA, this.threshold);
+                    if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                        browserFound = ((BufferedODDRHTTPEvidence) evdnc).getBrowserFound();
+                    }
+                    if (browserFound == null) {
+                        browserFound = browserIdentificator.get(browserUA, this.threshold);
+                    }
+                    if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                        ((BufferedODDRHTTPEvidence) evdnc).setBrowserFound(browserFound);
+                    }
                     browserIdentified = true;
                 }
                 String property = null;
@@ -729,7 +806,15 @@ public class ODDRService implements Service {
                     if (deviceUA == null) {
                         deviceUA = UserAgentFactory.newDeviceUserAgent(evdnc);
                     }
-                    osFound = osIdentificator.get(deviceUA, this.threshold);
+                    if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                        osFound = ((BufferedODDRHTTPEvidence) evdnc).getOsFound();
+                    }
+                    if (osFound == null) {
+                        osFound = osIdentificator.get(deviceUA, this.threshold);
+                    }
+                    if (evdnc instanceof BufferedODDRHTTPEvidence) {
+                        ((BufferedODDRHTTPEvidence) evdnc).setOsFound(osFound);
+                    }
                     osIdentified = true;
                 }
                 String property = null;
@@ -741,6 +826,27 @@ public class ODDRService implements Service {
                     ret.addProperty(new ODDRPropertyValue(null, vocabularyProperty.getType(), propertyRef));
                 }
                 continue;
+
+            } else if (ASPECT_GROUP.equals(propertyRef.getAspectName())) {
+                try {
+                    String jexlExp = vocabularyProperty.getExpr();
+                    Matcher m = groupRegexprPattern.matcher(jexlExp);
+                    while (m.find()) {
+                        String id = m.group(1);
+                        String propertyValueString = null;
+                        PropertyValue propertyValue = getPropertyValue(evdnc, vocabulary.getVocabularyVariables().get(id).getName(), vocabulary.getVocabularyVariables().get(id).getAspect(), vocabulary.getVocabularyVariables().get(id).getVocabulary());
+                        propertyValueString = (propertyValue.exists() ? propertyValue.getString() : "-");
+                        String toReplace = "$" + id;
+                        jexlExp = jexlExp.replaceAll(Matcher.quoteReplacement(toReplace), "'" + propertyValueString + "'");
+                    }
+                    Expression e = jexl.createExpression(jexlExp);
+                    JexlContext jc = new MapContext();
+                    Object o = e.evaluate(jc);
+                    ret.addProperty(new ODDRPropertyValue(o.toString(), vocabularyProperty.getType(), propertyRef));
+
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
 

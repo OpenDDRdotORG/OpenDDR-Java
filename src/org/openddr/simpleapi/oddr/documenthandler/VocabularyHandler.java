@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import org.openddr.simpleapi.oddr.model.vocabulary.Vocabulary;
 import org.openddr.simpleapi.oddr.model.vocabulary.VocabularyProperty;
+import org.openddr.simpleapi.oddr.model.vocabulary.VocabularyVariable;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -35,12 +36,18 @@ public class VocabularyHandler extends DefaultHandler {
     private static final String ELEMENT_VOCABULARY_DESCRIPTION = "VocabularyDescription";
     private static final String ELEMENT_ASPECTS = "Aspects";
     private static final String ELEMENT_ASPECT = "Aspect";
+    private static final String ELEMENT_VARIABLES = "Variables";
+    private static final String ELEMENT_VARIABLE = "Variable";
     private static final String ELEMENT_PROPERTIES = "Properties";
     private static final String ELEMENT_PROPERTY = "Property";
     private static final String ATTRIBUTE_PROPERTY_TARGET = "target";
     private static final String ATTRIBUTE_PROPERTY_ASPECT_NAME = "name";
+    private static final String ATTRIBUTE_PROPERTY_ASPECT = "aspect";
     private static final String ATTRIBUTE_PROPERTY_NAME = "name";
+    private static final String ATTRIBUTE_PROPERTY_VOCABULARY = "vocabulary";
+    private static final String ATTRIBUTE_PROPERTY_ID = "id";
     private static final String ATTRIBUTE_PROPERTY_DATA_TYPE = "datatype";
+    private static final String ATTRIBUTE_PROPERTY_EXPR = "expr";
     private static final String ATTRIBUTE_PROPERTY_ASPECTS = "aspects";
     private static final String ATTRIBUTE_PROPERTY_DEFAULT_ASPECT = "defaultAspect";
     private Vocabulary vocabulary = null;
@@ -48,6 +55,8 @@ public class VocabularyHandler extends DefaultHandler {
     private List<String> aspects = null;
     private VocabularyProperty vocabularyProperty = null;
     private Map<String, VocabularyProperty> vocabularyProperties = null;
+    private Map<String, VocabularyVariable> vocabularyVariables = null;
+    private VocabularyVariable vocabularyVariable = null;
 
     @Override
     public void startDocument() throws SAXException {
@@ -65,6 +74,12 @@ public class VocabularyHandler extends DefaultHandler {
         } else if (ELEMENT_ASPECT.equals(name)) {
             startAspect(attributes);
 
+        } else if (ELEMENT_VARIABLES.equals(name)) {
+            startVariables(attributes);
+
+        } else if (ELEMENT_VARIABLE.equals(name)) {
+            startVariable(attributes);
+
         } else if (ELEMENT_PROPERTIES.equals(name)) {
             startProperties(attributes);
 
@@ -81,6 +96,12 @@ public class VocabularyHandler extends DefaultHandler {
         } else if (ELEMENT_ASPECTS.equals(name)) {
             endAspectsElement();
 
+        } else if (ELEMENT_VARIABLES.equals(name)) {
+            endVariablesElement();
+
+        } else if (ELEMENT_VARIABLE.equals(name)) {
+            endVariableElement();
+            
         } else if (ELEMENT_PROPERTIES.equals(name)) {
             endProperties();
 
@@ -105,6 +126,21 @@ public class VocabularyHandler extends DefaultHandler {
         }
     }
 
+    private void startVariables(Attributes attributes) {
+        vocabularyVariables = new HashMap<String, VocabularyVariable>();
+    }
+
+    private void startVariable(Attributes attributes) {
+        vocabularyVariable = new VocabularyVariable();
+        vocabularyVariable.setAspect(attributes.getValue(ATTRIBUTE_PROPERTY_ASPECT));
+        vocabularyVariable.setId(attributes.getValue(ATTRIBUTE_PROPERTY_ID));
+        vocabularyVariable.setName(attributes.getValue(ATTRIBUTE_PROPERTY_NAME));
+        vocabularyVariable.setVocabulary(attributes.getValue(ATTRIBUTE_PROPERTY_VOCABULARY));
+        if (!vocabularyVariables.containsKey(vocabularyVariable.getId())) {
+            vocabularyVariables.put(vocabularyVariable.getId(), vocabularyVariable);
+        }
+    }
+
     private void endAspectElement() {
         aspect = null;
     }
@@ -113,6 +149,15 @@ public class VocabularyHandler extends DefaultHandler {
         String[] aspectsArray = new String[aspects.size()];
         vocabulary.setAspects(aspects.toArray(aspectsArray));
         aspects = null;
+    }
+
+    private void endVariableElement() {
+        vocabularyVariable = null;
+    }
+
+    private void endVariablesElement() {
+        vocabulary.setVocabularyVariables(vocabularyVariables);
+        vocabularyVariables = null;
     }
 
     private void startProperties(Attributes attributes) {
@@ -129,6 +174,7 @@ public class VocabularyHandler extends DefaultHandler {
 
         vocabularyProperty.setAspects(aspectsArray);
         vocabularyProperty.setDefaultAspect(attributes.getValue(ATTRIBUTE_PROPERTY_DEFAULT_ASPECT));
+        vocabularyProperty.setExpr(attributes.getValue(ATTRIBUTE_PROPERTY_EXPR));
         vocabularyProperty.setName(attributes.getValue(ATTRIBUTE_PROPERTY_NAME));
         vocabularyProperty.setType(attributes.getValue(ATTRIBUTE_PROPERTY_DATA_TYPE));
     }

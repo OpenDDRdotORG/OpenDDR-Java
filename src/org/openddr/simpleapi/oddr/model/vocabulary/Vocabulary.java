@@ -26,6 +26,7 @@ public class Vocabulary {
 
     private String[] aspects = null;
     private Map<String, VocabularyProperty> properties = null;
+    private Map<String, VocabularyVariable> vocabularyVariables = null;
     private String vocabularyIRI = null;
 
     public String[] getAspects() {
@@ -42,6 +43,14 @@ public class Vocabulary {
 
     public void setProperties(Map<String, VocabularyProperty> properties) {
         this.properties = properties;
+    }
+
+    public Map<String, VocabularyVariable> getVocabularyVariables() {
+        return vocabularyVariables;
+    }
+
+    public void setVocabularyVariables(Map<String, VocabularyVariable> vocabularyVariables) {
+        this.vocabularyVariables = vocabularyVariables;
     }
 
     public String getVocabularyIRI() {

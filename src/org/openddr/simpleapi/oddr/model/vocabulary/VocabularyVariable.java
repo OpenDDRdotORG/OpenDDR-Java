@@ -20,36 +20,27 @@
  */
 package org.openddr.simpleapi.oddr.model.vocabulary;
 
-public class VocabularyProperty {
+public class VocabularyVariable {
 
-    private String[] aspects = null;
-    private String defaultAspect = null;
-    private String expr = null;
+    private String aspect = null;
+    private String id = null;
     private String name = null;
-    private String type = null;
+    private String vocabulary = null;
 
-    public String[] getAspects() {
-        return aspects;
+    public String getAspect() {
+        return aspect;
     }
 
-    public void setAspects(String[] aspects) {
-        this.aspects = aspects;
+    public void setAspect(String aspect) {
+        this.aspect = aspect;
     }
 
-    public String getDefaultAspect() {
-        return defaultAspect;
+    public String getId() {
+        return id;
     }
 
-    public void setDefaultAspect(String defaultAspect) {
-        this.defaultAspect = defaultAspect;
-    }
-
-    public String getExpr() {
-        return expr;
-    }
-
-    public void setExpr(String expr) {
-        this.expr = expr;
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -60,11 +51,17 @@ public class VocabularyProperty {
         this.name = name;
     }
 
-    public String getType() {
-        return type;
+    public String getVocabulary() {
+        return vocabulary;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setVocabulary(String vocabulary) {
+        this.vocabulary = vocabulary;
     }
+
+    @Override
+    public String toString() {
+        return "VocabularyVariable{" + " aspect=" + aspect + " id=" + id + " name=" + name + " vocabulary=" + vocabulary + '}';
+    }
+
 }

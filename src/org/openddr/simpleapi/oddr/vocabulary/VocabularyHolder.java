@@ -22,6 +22,8 @@ package org.openddr.simpleapi.oddr.vocabulary;
 
 import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
+import org.openddr.simpleapi.oddr.cache.Cache;
+import org.openddr.simpleapi.oddr.cache.CacheImpl;
 import org.openddr.simpleapi.oddr.model.vocabulary.Vocabulary;
 import org.openddr.simpleapi.oddr.model.vocabulary.VocabularyProperty;
 import org.w3c.ddr.simple.exception.NameException;
@@ -29,6 +31,7 @@ import org.w3c.ddr.simple.exception.NameException;
 public class VocabularyHolder {
 
     private Map<String, Vocabulary> vocabularies = null;
+    private Cache vocabularyPropertyCache = new CacheImpl();
 
     public VocabularyHolder(Map<String, Vocabulary> vocabularies) {
         this.vocabularies = vocabularies;
@@ -42,30 +45,37 @@ public class VocabularyHolder {
 
     public VocabularyProperty existProperty(String propertyName, String aspect, String vocabularyIRI) throws NameException {
         String realAspect = aspect;
+        VocabularyProperty vocabularyProperty = (VocabularyProperty) vocabularyPropertyCache.getCachedElement(propertyName + aspect + vocabularyIRI);
 
-        if (vocabularies.get(vocabularyIRI) != null) {
-            Map<String, VocabularyProperty> propertyMap = vocabularies.get(vocabularyIRI).getProperties();
-            VocabularyProperty vocabularyProperty = propertyMap.get(propertyName);
+        if (vocabularyProperty == null) {
+            if (vocabularies.get(vocabularyIRI) != null) {
+                Map<String, VocabularyProperty> propertyMap = vocabularies.get(vocabularyIRI).getProperties();
+                vocabularyProperty = propertyMap.get(propertyName);
 
-            if (vocabularyProperty != null) {
-                if (realAspect != null && realAspect.trim().length() > 0) {
-                    if (ArrayUtils.contains(vocabularyProperty.getAspects(), realAspect)) {
-                        return vocabularyProperty;
+                if (vocabularyProperty != null) {
+                    if (realAspect != null && realAspect.trim().length() > 0) {
+                        if (ArrayUtils.contains(vocabularyProperty.getAspects(), realAspect)) {
+                            vocabularyPropertyCache.setCachedElement(propertyName + aspect + vocabularyIRI, vocabularyProperty);
+                            return vocabularyProperty;
+
+                        } else {
+                            throw new NameException(NameException.ASPECT_NOT_RECOGNIZED, "unknow \"" + realAspect + "\" aspect");
+                        }
 
                     } else {
-                        throw new NameException(NameException.ASPECT_NOT_RECOGNIZED, "unknow \"" + realAspect + "\" aspect");
+                        return vocabularyProperty;
                     }
 
                 } else {
-                    return vocabularyProperty;
+                    throw new NameException(NameException.PROPERTY_NOT_RECOGNIZED, "unknow \"" + propertyName + "\" property");
                 }
 
             } else {
-                throw new NameException(NameException.PROPERTY_NOT_RECOGNIZED, "unknow \"" + propertyName + "\" property");
+                throw new NameException(NameException.VOCABULARY_NOT_RECOGNIZED, "unknow \"" + vocabularyIRI + "\" vacabulary");
             }
 
         } else {
-            throw new NameException(NameException.VOCABULARY_NOT_RECOGNIZED, "unknow \"" + vocabularyIRI + "\" vacabulary");
+            return vocabularyProperty;
         }
     }
 
