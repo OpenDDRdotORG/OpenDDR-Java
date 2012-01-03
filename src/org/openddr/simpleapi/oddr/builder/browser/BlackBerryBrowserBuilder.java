@@ -27,7 +27,7 @@ import org.openddr.simpleapi.oddr.model.browser.Browser;
 
 public class BlackBerryBrowserBuilder extends LayoutEngineBrowserBuilder {
 
-    private static final String BLACKBERRY_VERSION_REGEXP = ".*(?:(?:Version)|(?:[Bb]lack.?[Bb]erry(?:\\d+)))/([0-9\\.]+).*";//"(?:.*?Version.?([0-9\\.]+).*)|(?:.*?[Bb]lack.?[Bb]erry(?:\\d+)/([0-9\\.]+).*)";
+    private static final String BLACKBERRY_VERSION_REGEXP = ".*(?:(?:Version)|(?:[Bb]lack.?[Bb]erry.?(?:[0-9a-z]+)))/([0-9\\.]+).*";//"(?:.*?Version.?([0-9\\.]+).*)|(?:.*?[Bb]lack.?[Bb]erry(?:\\d+)/([0-9\\.]+).*)";
     private static final String SAFARI_VERSION_REGEXP = ".*Safari/([0-9\\.]+).*";
     private Pattern blackberryVersionPattern = Pattern.compile(BLACKBERRY_VERSION_REGEXP);
     private Pattern safariVersionPattern = Pattern.compile(SAFARI_VERSION_REGEXP);
