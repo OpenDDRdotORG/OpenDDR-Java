@@ -180,13 +180,26 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
                 if (userAgent.getPatternElementsPost() != null && currentPattern.matcher(userAgent.getPatternElementsPost()).matches()) {//userAgent.getPatternElementsPost().matches(".*" + currentToken + ".*")) {
                     String deviceId = (String) orderedRules.get(token);
-
+                    
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
                         retDevice.setConfidence(60 - subtract);
                         return retDevice;
 
                     } catch (NullPointerException x) {
+                    }
+                }
+                if (i == 1) {
+                    if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".*")) {
+                        String deviceId = (String) orderedRules.get(token);
+
+                        try {
+                            Device retDevice = (Device) devices.get(deviceId).clone();
+                            retDevice.setConfidence(40);
+                            return retDevice;
+
+                        } catch (NullPointerException x) {
+                        }
                     }
                 }
                 subtract += 20;
