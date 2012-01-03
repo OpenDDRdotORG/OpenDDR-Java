@@ -206,7 +206,7 @@ public class ODDRService implements Service {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_BROWSER_DATASOURCE_PATH_PROP));
         }
 
-        if ((oddrUaOperatingSystemDatasourcePaths == null || oddrUaOperatingSystemDatasourcePaths.trim().length() == 0) && oddrUaOperatingSystemDatasourcePaths == null) {
+        if ((oddrUaOperatingSystemDatasourcePaths == null || oddrUaOperatingSystemDatasourcePaths.trim().length() == 0) && oddrUaOperatingSystemDatasourceStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_OPERATINGSYSTEM_DATASOURCE_PATH_PROP));
         }
 
