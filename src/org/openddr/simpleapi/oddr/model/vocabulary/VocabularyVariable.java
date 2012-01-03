@@ -61,7 +61,6 @@ public class VocabularyVariable {
 
     @Override
     public String toString() {
-        return "VocabularyVariable{" + " aspect=" + aspect + " id=" + id + " name=" + name + " vocabulary=" + vocabulary + '}';
+        return "VocabularyVariable {" + " aspect=" + aspect + " id=" + id + " name=" + name + " vocabulary=" + vocabulary + '}';
     }
-
 }
