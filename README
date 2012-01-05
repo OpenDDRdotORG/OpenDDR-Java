@@ -11,6 +11,7 @@ A basic explanation of the properties in oddr.properties:
 	oddr.ua.device.builder.patch.paths: 		Path of the patch file for the builder file
 	oddr.ua.device.datasource.patch.paths: 	Path of the patch file for the device data source
 	oddr.ua.browser.datasource.path: 			Path of the browser data source
+	oddr.ua.operatingSystem.datasource.path:	Path of the operating system data source
 	ddr.vocabulary.core.path: 				Path of the W3C vocabulary file
 	oddr.vocabulary.path: 					Path of OpenDDR vocabulary
 	oddr.limited.vocabulary.path: 			Path of the reduced vocabulary. This vocabulary is usefull to limitate the memory load. It can be safely left unspecified.
