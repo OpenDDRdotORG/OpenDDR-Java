@@ -27,7 +27,7 @@ import org.openddr.simpleapi.oddr.model.browser.Browser;
 
 public class IEMobileBrowserBuilder extends LayoutEngineBrowserBuilder {
 
-    private static final String VERSION_REGEXP = ".*IEMobile.([0-9\\.]+).*?";
+    private static final String VERSION_REGEXP = ".*[^MS]IEMobile.([0-9\\.]+).*?";
     private static final String MSIE_VERSION_REGEXP = ".*MSIE.([0-9\\.]+).*";
     private static final String MSIEMOBILE_VERSION_REGEXP = ".*MSIEMobile.([0-9\\.]+).*";
     private Pattern versionPattern = Pattern.compile(VERSION_REGEXP);
