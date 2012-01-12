@@ -28,7 +28,7 @@ import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
 
 public class BrewMozillaSubBuilder implements Builder {
 
-    private static final String VERSION_REGEXP = ".*?((?:Brew|BREW).?(?:MP)?).(?:(\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(.*))";
+    private static final String VERSION_REGEXP = ".*?(?:(?:Brew|BREW).?(?:MP)?).((\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(.*))";
     private Pattern versionPattern = Pattern.compile(VERSION_REGEXP);
 
     public boolean canBuild(UserAgent userAgent) {

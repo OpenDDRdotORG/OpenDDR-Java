@@ -31,13 +31,15 @@ public class ObigoBrowserBuilder extends LayoutEngineBrowserBuilder {
     private static final String VERSION_REGEXP2 = ".*?(?:(?:Browser/Obigo)|(?:OBIGO[/_-])|(?:Obigo[-/ ]))([0-9A-Z\\.]+).*?";
     private static final String VERSION_REGEXP3 = ".*?(?:(?:Obigo[Il]nternetBrowser/)|(?:Obigo Browser )|(?:[Oo]bigo[- ][Bb]rowser/))([0-9A-Zacqv\\.]+).*?";
     private static final String VERSION_REGEXP4 = ".*?(?:(?:[Bb]rowser/[Oo]bigo)|(?:OBIGO[/_-])|(?:Obigo[-/ ]))([0-9A-Zacqv\\.]+).*?";
+    private static final String VERSION_REGEXP5 = ".*?(?:(?:[Tt]eleca Q))([0-9A-Zacqv\\.]+).*?";
     private Pattern versionPattern = Pattern.compile(VERSION_REGEXP);
     private Pattern versionPattern2 = Pattern.compile(VERSION_REGEXP2);
     private Pattern versionPattern3 = Pattern.compile(VERSION_REGEXP3);
     private Pattern versionPattern4 = Pattern.compile(VERSION_REGEXP4);
+    private Pattern versionPattern5 = Pattern.compile(VERSION_REGEXP5);
 
     public boolean canBuild(UserAgent userAgent) {
-        if (userAgent.getCompleteUserAgent().matches("(?i).*obigo.*")) {
+        if (userAgent.getCompleteUserAgent().matches("((?i).*obigo.*)|((?i).*teleca.*)")) {
             return true;
         }
         return false;
@@ -46,6 +48,11 @@ public class ObigoBrowserBuilder extends LayoutEngineBrowserBuilder {
     @Override
     protected Browser buildBrowser(UserAgent userAgent, String layoutEngine, String layoutEngineVersion, int hintedWidth, int hintedHeight) {
         String version = null;
+
+        int confidence = 60;
+        Browser identified = new Browser();
+        identified.setVendor("Obigo");
+        identified.setModel("Obigo Browser");
 
         Matcher versionMatcher = versionPattern.matcher(userAgent.getCompleteUserAgent());
         if (!versionMatcher.matches()) {
@@ -94,13 +101,22 @@ public class ObigoBrowserBuilder extends LayoutEngineBrowserBuilder {
         }
 
         if (version == null) {
+            Matcher versionMatcher5 = versionPattern5.matcher(userAgent.getCompleteUserAgent());
+            if (!versionMatcher5.matches()) {
+                version = null;
+
+            } else {
+                if (versionMatcher5.group(1) != null) {
+                    version = versionMatcher5.group(1);
+                    identified.setModel("Teleca-Obigo");
+                }
+            }
+        }
+
+        if (version == null) {
             return null;
         }
 
-        int confidence = 60;
-        Browser identified = new Browser();
-        identified.setVendor("Obigo");
-        identified.setModel("Obigo Browser");
         identified.setVersion(version);
 
         if (layoutEngine != null) {
