@@ -1,24 +1,93 @@
 Dear OpenDDR user, 
 
-In the follow the description of directory tree:
-	lib: contains necessary libraries to run OpenDDR-Simple-API;
-	src: contains java source code and the oddr.properties file. Please configure the oddr.properties file with the right path of the resources.
+Directory Tree
+==============
+
+The directory setup is the typical setup for a Maven style project, with a few exceptions in order to keep you from having to use maven.  The directories are as follows:
+
+    src/main/java:  Java source files
+    src/main/resources:  the oddr.properties template file *and* jars needed for compile and running
+    src/test/java:  Unit tests go here
+
+Building
+========
+
+You can use maven to build the project by using the following:
+
+  $ mvn compile
+
+To build the project for use in another application, use:
+
+  $ mvn package
+
+Doing package will create a jar from the source code, and also copy all the other jars and property files you will need into the _dist_ directory.
+
+Finally
+
+  $ mvn clean
+
+will remove any temporary directories.
+
+*Note* if you are into maven, you will notice that within the pom.xml the jar files are gotten from the local file system (the resources directory).  This is not as it should be, but I am currently forking this project, and don't want to assume moving everything to maven is ok.
+
+If you desire to use maven in the "right way", then you will need to edit the dependency section of the _pom.xml_ file.
 
 
-A basic explanation of the properties in oddr.properties:
-	oddr.ua.device.builder.path: 				Path of the file that explain how to identify the devices. In this, for each builder, are specified the devices id that the builder handle and the identification rules
-	oddr.ua.device.datasource.path: 			Path of the device datasource
-	oddr.ua.device.builder.patch.paths: 		Path of the patch file for the builder file
-	oddr.ua.device.datasource.patch.paths: 	Path of the patch file for the device data source
-	oddr.ua.browser.datasource.path: 			Path of the browser data source
-	oddr.ua.operatingSystem.datasource.path:	Path of the operating system data source
-	ddr.vocabulary.core.path: 				Path of the W3C vocabulary file
-	oddr.vocabulary.path: 					Path of OpenDDR vocabulary
-	oddr.limited.vocabulary.path: 			Path of the reduced vocabulary. This vocabulary is usefull to limitate the memory load. It can be safely left unspecified.
-	oddr.vocabulary.device: 					IRI of the default vocabulary. It is the target namespace specified in a vocabulary
-	oddr.threshold: 						Identification threshold. It is used to balance the request evaluation time and identification matching.
+oddr.properties
+===============
+
+The following is a basic explanation of the properties in oddr.properties.
+
+oddr.ua.device.builder.path
+---------------------------
+Path of the file that explain how to identify the devices. In this, for each builder, are specified the devices id that the builder handle and the identification rules.
+
+oddr.ua.device.datasource.path
+------------------------------
+Path of the device datasource
+
+oddr.ua.device.builder.patch.paths
+----------------------------------
+Path of the patch file for the builder file.
+
+oddr.ua.device.datasource.patch.paths
+-------------------------------------
+Path of the patch file for the device data source
+
+oddr.ua.browser.datasource.path
+-------------------------------
+Path of the browser data source
+
+oddr.ua.operatingSystem.datasource.path
+----------------------------------------
+Path of the operating system data source
+
+oddr.vocabulary.core.path
+-------------------------
+Path of the W3C vocabulary file
+
+oddr.vocabulary.path
+---------------------
+Path of OpenDDR vocabulary
+
+oddr.limited.vocabulary.path
+-----------------------------
+Path of the reduced vocabulary. This vocabulary is useful to limit the memory load. It can be safely left unspecified.
+
+oddr.vocabulary.device
+----------------------
+IRI of the default vocabulary. It is the target namespace specified in a vocabulary
+
+oddr.threshold
+--------------
+Identification threshold. It is used to balance the request evaluation time and identification matching.
+
+
+Servlet Filter Example
+======================
 
 This is a java example on how to integrate OpenDDR in a servlet Filter:
+
 	package org.openddr.samplewebapp.filter;
 
 	import java.io.IOException;
@@ -105,4 +174,3 @@ This is a java example on how to integrate OpenDDR in a servlet Filter:
 		System.out.println("Destroy Filter");
 	    }
 	}
-
