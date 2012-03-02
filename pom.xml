@@ -97,9 +97,7 @@
                                 <mkdir dir="dist" />
                                 <copy todir="dist">
                                     <fileset file="target/${project.artifactId}-${project.version}.jar" />
-                                    <fileset file="target/classes/oddr.properties" />
-                                    <fileset file="target/classes/*.jar" />
-                                    <fileset file="target/classes/data/*.xml" />
+                                    <fileset file="src/main/lib/*.jar" />
                                 </copy>
                             </tasks>
                         </configuration>
