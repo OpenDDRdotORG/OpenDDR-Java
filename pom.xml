@@ -96,11 +96,10 @@
                             <tasks>
                                 <mkdir dir="dist" />
                                 <copy todir="dist">
-                                    <fileset file="target/classes/commons-jexl-2.1.jar" />
-                                    <fileset file="target/classes/commons-lang-2.1.jar" />
-                                    <fileset file="target/classes/slf4j-api-1.6.1.jar" />
-                                    <fileset file="target/classes/oddr.properties" />
                                     <fileset file="target/${project.artifactId}-${project.version}.jar" />
+                                    <fileset file="target/classes/oddr.properties" />
+                                    <fileset file="target/classes/*.jar" />
+                                    <fileset file="target/classes/data/*.xml" />
                                 </copy>
                             </tasks>
                         </configuration>
