@@ -32,13 +32,13 @@ public class FileLocator {
 
     /**
      * This method tries to support the original way of loading a resource from the
-     * oddr.properites files (full file system path), and also a more web application
-     * friendly way of loading as a resource.
+     * oddr.properites files (full file system path), and also a more web application /
+     * build process friendly way of loading the files as a resource.
      *
      * If the path starts with a "/" it is assumed to be a full path on the filesystem
      * if not, it's loaded as a resource.
      *
-     * (Someone who cares about windows, and needs full path support,  can update the
+     * (Someone who cares about windows, and needs full path support, can update the
      * method for that OS)
      *
      * @param path

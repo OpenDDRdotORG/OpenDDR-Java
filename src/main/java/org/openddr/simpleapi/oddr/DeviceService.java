@@ -29,6 +29,7 @@ import java.util.Properties;
 
 /**
  * Created By: rob @ VirtualTourist.com 2012-03-01 3:44 PM
+ * My Kingdom for delegation in java... c'mon it's 2012...
  */
 public class DeviceService {
 
