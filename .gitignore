@@ -1,2 +1,2 @@
-src/main/resources/data/*.xml
+src/main/resources/*.xml
 dist
