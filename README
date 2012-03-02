@@ -3,28 +3,24 @@ Dear OpenDDR user,
 Directory Tree
 ==============
 
-The directory setup is the typical setup for a Maven style project, with a few exceptions in order to keep you from having to use maven.  The directories are as follows:
+The directory setup is the typical setup for a Maven (http://maven.apache.org/) style project, with a few exceptions in order to keep you from having to use maven.  The directories are as follows:
 
     src/main/java:  Java source files
     src/main/resources:  the oddr.properties template file *and* XML files needed running
-    src/test/java:  Unit tests go here
+    src/test/java:  Unit tests go here ... crickets ...
 
 Building
 ========
 
 There are a couple of steps you need to do before you can compile a usable version.  The first thing you need to do is to get the device XML files.  They are not distributed in the source code.  With a bit of searching, you can find the files on the http://openddr.org/ web site.  A few of the file names are _BrowserDataSource.xml_, _coreVocabulary.xml_, and _DeviceDataSource.xml_.  There are about 9 XML files in all (as of this writing). See _oddr.properites_ for a full list.
 
-Once you have the XML files, put them into the _/src/main/resources_ directory.  From there, they will be compiled into the final OpenDDR-Java jar.
+Once you have the XML files, put them into the _/src/main/resources_ directory.  From there, they will be compiled into the final OpenDDR-Java jar (don't put them there if you are going to use the _full system path_ way).
 
 Before you compile, have a look at the _pom.xml_ file.
 
-In an older version of OpenDDR, the path to the XML files was a full system path to the XML files.  If you like that behavior, set the property _oddr.resourcePath_ to the directory where you are storing the XML files.  Be sure to begin and end the path with a slash.  Leaving this value as the default will compile the XML files into the jar.
+In an older version of OpenDDR, the path to the XML files was the full system path to the XML files.  If you like that behaviour, set the property _oddr.resourcePath_ to the directory where you are storing the XML files.  Be sure to begin and end the path with a slash.  Leaving the value with the default will compile the XML files into the jar.
 
 Ok, finally you can use maven to build the project by using the following:
-
-  $ mvn compile
-
-To build the project for use in another application, use:
 
   $ mvn package
 
@@ -36,7 +32,7 @@ Oh, and lastly:
 
 will remove any temporary directories.
 
-*Note* if you are into maven, you will notice that within the _pom.xml_ the jar files are obtained from the local file system (the resources directory).  This is not as it should be. However, I am currently forking this project, and don't want to assume moving everything to maven is ok.
+*Note* if you are into maven, you will notice that within the _pom.xml_ the jar files are obtained from the local file system (the _/src/main/lib_ directory).  This is not as it should be. However, I am currently forking this project, and don't want to assume moving everything to maven is ok.
 
 If you desire to use maven in the "right way", then you will need to edit the dependency section of the _pom.xml_ file.
 
@@ -95,7 +91,7 @@ Identification threshold. It is used to balance the request evaluation time and 
 Grails Injected Service
 =======================
 
-To use OpenDDR in a grails application, you can do the following after having copied all the jars from the _Building_ section into your classpath (for example, the top level _lib_ directory).
+To use OpenDDR in a grails web application, you can do the following after having copied all the jars from the _Building_ section into your classpath (for example, the top level _lib_ directory).
 
 1) Edit _resources.groovy_
 
@@ -109,7 +105,7 @@ To use OpenDDR in a grails application, you can do the following after having co
 
 This will add the service _deviceService_ that you can call from your services, or (more likely) a filter.
 
-*Note* you will notice an increase in slowness when starting up.
+*Note* after adding the above you will notice an increased slowness when starting up.
 
 2) Add a filter in _conf_ - _DetectionFilters.groovy_ for example.  The important parts are shown below
 
@@ -138,8 +134,8 @@ This will add the service _deviceService_ that you can call from your services, 
 
                     request.setAttribute('vendor', vendor?.getString())
                     request.setAttribute('model', model?.getString())
-                    request.setAttribute('displayWidth', displayWidth?.getInteger() + '')
-                    request.setAttribute('displayHeight', displayHeight?.getInteger() + '')
+                    request.setAttribute('displayWidth', displayWidth?.getInteger())
+                    request.setAttribute('displayHeight', displayHeight?.getInteger())
                 }
             }
         }
