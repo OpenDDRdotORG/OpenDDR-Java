@@ -22,8 +22,6 @@ package org.openddr.simpleapi.oddr;
 
 import org.openddr.simpleapi.oddr.model.ODDRPropertyValue;
 import org.openddr.simpleapi.oddr.model.ODDRPropertyRef;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -108,8 +106,10 @@ public class ODDRService implements Service {
     private static final String GROUP_REGEXPR = "\\$([^ ]+)";
     private Pattern groupRegexprPattern = Pattern.compile(GROUP_REGEXPR);
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+    private FileLocator fileLocator;
 
     public void initialize(String defaultVocabularyIRI, Properties prprts) throws NameException, InitializationException {
+        fileLocator = new FileLocator();
         if (defaultVocabularyIRI == null || defaultVocabularyIRI.trim().length() == 0) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new NullPointerException("defaultVocabularyIRI can not be null"));
         }
@@ -235,7 +235,7 @@ public class ODDRService implements Service {
             if (oddrUaDeviceDatasourceStream != null) {
                 stream = oddrUaDeviceDatasourceStream;
             } else {
-                stream = new FileInputStream(new File(oddrUaDeviceDatasourcePath));
+                stream = fileLocator.openODDRResource(oddrUaDeviceDatasourcePath);
             }
 
         } catch (IOException ex) {
@@ -302,7 +302,7 @@ public class ODDRService implements Service {
         } else {
             for (int i = 0; i < ooddrUaDeviceDatasourcePatchPathArray.length; i++) {
                 try {
-                    stream = new FileInputStream(new File(ooddrUaDeviceDatasourcePatchPathArray[i]));
+                    stream = fileLocator.openODDRResource(ooddrUaDeviceDatasourcePatchPathArray[i]);
 
                 } catch (IOException ex) {
                     throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_DEVICE_DATASOURCE_PATH_PROP + " " + ooddrUaDeviceDatasourcePatchPathArray[i]));
@@ -345,7 +345,7 @@ public class ODDRService implements Service {
             if (oddrUaDeviceBuilderStream != null) {
                 stream = oddrUaDeviceBuilderStream;
             } else {
-                stream = new FileInputStream(new File(oddrUaDeviceBuilderPath));
+                stream = fileLocator.openODDRResource(oddrUaDeviceBuilderPath);
             }
 
         } catch (IOException ex) {
@@ -411,7 +411,7 @@ public class ODDRService implements Service {
         } else {
             for (int i = 0; i < oddrUaDeviceBuilderPatchPathArray.length; i++) {
                 try {
-                    stream = new FileInputStream(new File(oddrUaDeviceBuilderPatchPathArray[i]));
+                    stream = fileLocator.openODDRResource(oddrUaDeviceBuilderPatchPathArray[i]);
 
                 } catch (IOException ex) {
                     throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + ODDR_UA_DEVICE_BUILDER_PATCH_PATHS_PROP + " " + oddrUaDeviceBuilderPatchPathArray[i]));
@@ -452,7 +452,7 @@ public class ODDRService implements Service {
             if (oddrUaBrowserDatasourceStream != null) {
                 stream = oddrUaBrowserDatasourceStream;
             } else {
-                stream = new FileInputStream(new File(oddrUaBrowserDatasourcePaths));
+                stream = fileLocator.openODDRResource(oddrUaBrowserDatasourcePaths);
             }
 
         } catch (IOException ex) {
@@ -492,7 +492,7 @@ public class ODDRService implements Service {
             if (oddrUaOperatingSystemDatasourceStream != null) {
                 stream = oddrUaOperatingSystemDatasourceStream;
             } else {
-                stream = new FileInputStream(new File(oddrUaOperatingSystemDatasourcePaths));
+                stream = fileLocator.openODDRResource(oddrUaOperatingSystemDatasourcePaths);
             }
 
         } catch (IOException ex) {
