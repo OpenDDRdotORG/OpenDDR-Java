@@ -49,9 +49,16 @@ public class ODDRPropertyValue implements PropertyValue {
         this.propertyRef = propertyRef;
     }
 
+    /**
+     * Get the value as a double. If the value doesn't exist it will
+     * return 0.  If the type is badly defined it will throw a ValueException
+     *
+     * @return the value or 0
+     * @throws ValueException
+     */
     public double getDouble() throws ValueException {
         if (!exists()) {
-            throw new ValueException(ValueException.NOT_KNOWN, type);
+            return 0;
         }
 
         if (type.equals(TYPE_DOUBLE) || type.equals(TYPE_FLOAT)) {
@@ -65,9 +72,16 @@ public class ODDRPropertyValue implements PropertyValue {
         throw new ValueException(ValueException.INCOMPATIBLE_TYPES, "Not " + TYPE_DOUBLE + " value");
     }
 
+    /**
+     * Get the value as a long. If the value doesn't exist it will
+     * return 0.  If the type is badly defined it will throw a ValueException
+     *
+     * @return the value or 0
+     * @throws ValueException
+     */
     public long getLong() throws ValueException {
         if (!exists()) {
-            throw new ValueException(ValueException.NOT_KNOWN, type);
+            return 0;
         }
         if (type.equals(TYPE_LONG) || type.equals(TYPE_INT)) {
             try {
@@ -80,9 +94,18 @@ public class ODDRPropertyValue implements PropertyValue {
         throw new ValueException(ValueException.INCOMPATIBLE_TYPES, "Not " + TYPE_LONG + " value");
     }
 
+    /**
+     * Get the value as a boolean. If the value doesn't exist it will
+     * return false.  If the type is badly defined it will throw a
+     * ValueException
+     *
+     * @return the value (false if blank)
+     * @throws ValueException
+     */
     public boolean getBoolean() throws ValueException {
         if (!exists()) {
-            throw new ValueException(ValueException.NOT_KNOWN, type);
+            //throw new ValueException(ValueException.NOT_KNOWN, type);
+            return false;
         }
         if (type.equals(TYPE_BOOLEAN)) {
             try {
@@ -95,9 +118,16 @@ public class ODDRPropertyValue implements PropertyValue {
         throw new ValueException(ValueException.INCOMPATIBLE_TYPES, "Not " + TYPE_BOOLEAN + " value");
     }
 
+    /**
+     * Get the value as an integer. If the value doesn't exist it will
+     * return 0.  If the type is badly defined it will throw a ValueException
+     *
+     * @return the value or 0
+     * @throws ValueException
+     */
     public int getInteger() throws ValueException {
         if (!exists()) {
-            throw new ValueException(ValueException.NOT_KNOWN, type);
+            return 0;
         }
 
         if (type.equals(TYPE_INT)) {
@@ -124,9 +154,16 @@ public class ODDRPropertyValue implements PropertyValue {
         throw new ValueException(ValueException.INCOMPATIBLE_TYPES, "Not " + TYPE_INT + " value");
     }
 
+    /**
+     * Get the value as a string array. If the value doesn't exist it will
+     * return null.  If the type is badly defined it will throw a ValueException
+     *
+     * @return the value or null
+     * @throws ValueException
+     */
     public String[] getEnumeration() throws ValueException {
         if (!exists()) {
-            throw new ValueException(ValueException.NOT_KNOWN, type);
+            return null;
         }
 
         if (type.equals(TYPE_ENUMERATION)) {
@@ -145,19 +182,27 @@ public class ODDRPropertyValue implements PropertyValue {
         throw new ValueException(ValueException.INCOMPATIBLE_TYPES, "Not " + TYPE_ENUMERATION + " value");
     }
 
+    /**
+     * Get the value as a float. If the value doesn't exist it will
+     * return 0.  If the type is badly defined it will throw a ValueException
+     *
+     * @return the value or 0
+     * @throws ValueException
+     */
     public float getFloat() throws ValueException {
         if (!exists()) {
-            throw new ValueException(ValueException.NOT_KNOWN, type);
+            //throw new ValueException(ValueException.NOT_KNOWN, type);
+            return 0;
         }
 
         if (type.equals(TYPE_FLOAT)) {
             try {
                 return Float.parseFloat(value);
-
             } catch (NumberFormatException ex) {
                 throw new ValueException(ValueException.INCOMPATIBLE_TYPES, ex);
             }
         }
+
         throw new ValueException(ValueException.INCOMPATIBLE_TYPES, "Not " + TYPE_FLOAT + " value");
     }
 
@@ -165,17 +210,23 @@ public class ODDRPropertyValue implements PropertyValue {
         return propertyRef;
     }
 
+    /**
+     * Get the value as a string. If the value doesn't exist or
+     * has a null value it will return a blank string.  If the type is
+     * badly defined it will throw a ValueException
+     *
+     * @return the value or ""
+     * @throws ValueException
+     */
     public String getString() throws ValueException {
         if (!exists()) {
-            throw new ValueException(ValueException.NOT_KNOWN, type);
+            //throw new ValueException(ValueException.NOT_KNOWN, type);
+            return "";
         }
         return value;
     }
 
     public boolean exists() {
-        if (value != null && value.length() > 0 && !"-".equals(value)) {
-            return true;
-        }
-        return false;
+        return (value != null && value.length() > 0 && !"-".equals(value));
     }
 }
