@@ -20,8 +20,6 @@
  */
 package org.openddr.simpleapi.oddr;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -48,9 +46,11 @@ public class ODDRVocabularyService {
     public static final String ODDR_LIMITED_VOCABULARY_STREAM_PROP = "oddr.limited.vocabulary.stream";
     public static final String ODDR_LIMITED_VOCABULARY_IRI = "limitedVocabulary";
     private VocabularyHolder vocabularyHolder = null;
+    private FileLocator fileLocator;
 
     public void initialize(Properties props) throws InitializationException {
         Map<String, Vocabulary> vocabularies = new HashMap<String, Vocabulary>();
+        fileLocator = new FileLocator();
 
         String ddrCoreVocabularyPath = props.getProperty(DDR_CORE_VOCABULARY_PATH_PROP);
         String oddrVocabularyPath = props.getProperty(ODDR_VOCABULARY_PATH_PROP);
@@ -134,7 +134,7 @@ public class ODDRVocabularyService {
         SAXParser parser = null;
 
         try {
-            stream = new FileInputStream(new File(path));
+            stream = fileLocator.openODDRResource(path);
 
         } catch (IOException ex) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not open " + prop + " : " + path));

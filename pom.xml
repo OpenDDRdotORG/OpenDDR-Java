@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.openddr.simpleapi.oddr</groupId>
+    <artifactId>OpenDDR-Java</artifactId>
+    <name>OpenDDR-Java</name>
+	<version>1.0.0.3</version>
+    <url>https://github.com/OpenDDR-org/OpenDDR-Java</url>
+
+    <properties>
+        <!-- <oddr.resourcePath>/User/blarg/openddr/</oddr.resourcePath> -->
+        <oddr.resourcePath />
+    </properties>
+
+	<dependencies>
+		<!--
+		   Third Party Dependencies.  This is not great. It should be using the
+		   normal maven repositories for the libraries, but I couldn't find the
+		   exact libraries, and I didn't want to force maven into the open source
+		   code.  This should, hopefully, work best in both cases.
+		-->
+        <dependency>
+        	<groupId>commons-jexl</groupId>
+        	<artifactId>commons-jexl</artifactId>
+        	<version>2.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/lib/commons-jexl-2.1.jar</systemPath>
+        </dependency>
+
+        <dependency>
+        	<groupId>commons-lang</groupId>
+        	<artifactId>commons-lang</artifactId>
+        	<version>2.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/lib/commons-lang-2.1.jar</systemPath>
+        </dependency>
+
+        <dependency>
+        	<groupId>org.slf4j</groupId>
+        	<artifactId>slf4j-api</artifactId>
+        	<version>1.6.1</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/lib/slf4j-api-1.6.1.jar</systemPath>
+        </dependency>
+
+        <dependency>
+            <groupId>org.w3c.ddr.simple</groupId>
+            <artifactId>DDR-Simple</artifactId>
+            <version>API</version>
+            <systemPath>${project.basedir}/src/main/lib/DDR-Simple-API.jar</systemPath>
+            <scope>system</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>3.8.1</version>
+            <scope>test</scope>
+        </dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <!-- <verbose>true</verbose> -->
+                    <!-- <debug>false</debug> -->
+                    <optimize>true</optimize>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <showDeprecation>true</showDeprecation>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+
+                    <execution>
+                        <id>clean</id>
+                        <phase>clean</phase>
+                        <configuration>
+                            <tasks>
+                                <delete dir="target" />
+                                <delete dir="dist" />
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <configuration>
+                            <tasks>
+                                <replace file="target/classes/oddr.properties">
+                                    <replacefilter token="@@FILESYSTEM_PATH_TO_RESOURCES@@"
+                                                   value="${oddr.resourcePath}" />
+                                </replace>
+                            </tasks>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>package</id>
+                        <phase>package</phase>
+                        <configuration>
+                            <tasks>
+                                <mkdir dir="dist" />
+                                <copy todir="dist">
+                                    <fileset file="target/${project.artifactId}-${project.version}.jar" />
+                                    <fileset file="src/main/lib/*.jar" />
+                                </copy>
+                            </tasks>
+                        </configuration>
+
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+
+                </executions>
+            </plugin>
+		</plugins>
+	</build>
+</project>

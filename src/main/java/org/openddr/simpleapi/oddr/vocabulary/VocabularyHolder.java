@@ -39,7 +39,7 @@ public class VocabularyHolder {
 
     public void existVocabulary(String vocabularyIRI) throws NameException {
         if (vocabularies.get(vocabularyIRI) == null) {
-            throw new NameException(NameException.VOCABULARY_NOT_RECOGNIZED, "unknow \"" + vocabularyIRI + "\" vacabulary");
+            throw new NameException(NameException.VOCABULARY_NOT_RECOGNIZED, "unknown \"" + vocabularyIRI + "\" vocabulary");
         }
     }
 
@@ -59,7 +59,7 @@ public class VocabularyHolder {
                             return vocabularyProperty;
 
                         } else {
-                            throw new NameException(NameException.ASPECT_NOT_RECOGNIZED, "unknow \"" + realAspect + "\" aspect");
+                            throw new NameException(NameException.ASPECT_NOT_RECOGNIZED, "unknown \"" + realAspect + "\" aspect");
                         }
 
                     } else {
@@ -67,11 +67,11 @@ public class VocabularyHolder {
                     }
 
                 } else {
-                    throw new NameException(NameException.PROPERTY_NOT_RECOGNIZED, "unknow \"" + propertyName + "\" property");
+                    throw new NameException(NameException.PROPERTY_NOT_RECOGNIZED, "unknown \"" + propertyName + "\" property");
                 }
 
             } else {
-                throw new NameException(NameException.VOCABULARY_NOT_RECOGNIZED, "unknow \"" + vocabularyIRI + "\" vacabulary");
+                throw new NameException(NameException.VOCABULARY_NOT_RECOGNIZED, "unknown \"" + vocabularyIRI + "\" vocabulary IRI");
             }
 
         } else {
