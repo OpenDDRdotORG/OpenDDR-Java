@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Created By: rob @ VirtualTourist.com 2012-03-02 10:43AM
+ * Created By: VirtualTourist.com 2012-03-02 10:43AM
  */
 public class FileLocator {
 
