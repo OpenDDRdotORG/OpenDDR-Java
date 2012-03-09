@@ -97,7 +97,7 @@ public class ODDRService implements Service {
     public static final String ODDR_THRESHOLD_PROP = "oddr.threshold";
     public static final String ODDR_VOCABULARY_IRI = "oddr.vocabulary.device";
     private static final String ODDR_API_VERSION = "1.0.0";
-    private static final String ODDR_DATA_VERSION = "2011";
+    private static final String ODDR_DATA_VERSION = "2012";
     private static final int ODDR_DEFAULT_THRESHOLD = 70;
     private String defaultVocabularyIRI = null;
     private DeviceIdentificator deviceIdentificator = null;
