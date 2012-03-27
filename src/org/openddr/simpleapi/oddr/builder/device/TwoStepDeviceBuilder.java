@@ -191,9 +191,9 @@ public class TwoStepDeviceBuilder extends OrderedTokenDeviceBuilder {
     }
 
     private void sortElement(String step1Token) {
-        Map<String, Device> currentStep1Map = (Map<String, Device>) orderedRules.get(step1Token);
+        Map<String, String> currentStep1Map = (Map<String, String>) orderedRules.get(step1Token);
 
-        LinkedHashMap<String, Device> tmp = new LinkedHashMap<String, Device>();
+        LinkedHashMap<String, String> tmp = new LinkedHashMap<String, String>();
         ArrayList<String> keys = new ArrayList<String>(currentStep1Map.keySet());
         Collections.sort(keys, new Comparator<String>() {
 
