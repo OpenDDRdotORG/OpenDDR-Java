@@ -557,6 +557,10 @@ public class ODDRService implements Service {
         return ODDR_DATA_VERSION;
     }
 
+    public DeviceIdentificator getDeviceIdentificator() {
+        return deviceIdentificator;
+    }
+
     public PropertyRef[] listPropertyRefs() {
         List<PropertyRef> propertyRefsList = new ArrayList<PropertyRef>();
         Map<String, Vocabulary> vocabularies = vocabularyHolder.getVocabularies();
