@@ -41,7 +41,6 @@ public class ODDRPropertyValue implements PropertyValue {
         this.value = value;
         try {
             this.value.trim();
-
         } catch (NullPointerException ex) {
         }
 
