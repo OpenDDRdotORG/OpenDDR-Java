@@ -38,7 +38,12 @@ public class ODDRPropertyValue implements PropertyValue {
     private final PropertyRef propertyRef;
 
     public ODDRPropertyValue(String value, String type, PropertyRef propertyRef) {
-        this.value = (value==null ? value : value.trim());
+        this.value = (value == null ? value : value.trim());
+        try {
+            this.value.trim();
+        } catch (NullPointerException ex) {
+        }
+
         this.type = type;
         this.propertyRef = propertyRef;
     }

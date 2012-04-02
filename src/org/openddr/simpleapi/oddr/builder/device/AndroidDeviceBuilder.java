@@ -32,7 +32,7 @@ import org.openddr.simpleapi.oddr.model.UserAgent;
 
 public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
 
-    private static final String BUILD_HASH_REGEXP = ".*Build/([^ \\)]*).*";
+    private static final String BUILD_HASH_REGEXP = ".*Build/([^ \\)\\(]*).*";
     private Pattern buildHashPattern = Pattern.compile(BUILD_HASH_REGEXP);
     private Map<String, Device> devices;
 
