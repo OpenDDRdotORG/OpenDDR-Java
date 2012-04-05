@@ -42,6 +42,10 @@ public class DeviceIdentificator implements Identificator {
         this.devices = devices;
     }
 
+    public Device getById(String id) {
+        return devices.get(id);
+    }
+
     public Device get(String userAgent, int confidenceTreshold) {
         return get(UserAgentFactory.newUserAgent(userAgent), confidenceTreshold);
     }
