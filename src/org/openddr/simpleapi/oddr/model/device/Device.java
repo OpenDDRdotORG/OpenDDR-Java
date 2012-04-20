@@ -62,11 +62,8 @@ public class Device extends BuiltObject implements Comparable, Cloneable {
     }
 
     public boolean containsProperty(String propertyName) {
-        try {
-            return properties.containsKey(propertyName);
-
-        } catch (NullPointerException x) {
-            return false;
-        }
+	return
+	    properties != null &&
+	    properties.containsKey(propertyName);
     }
 }
