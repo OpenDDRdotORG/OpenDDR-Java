@@ -51,12 +51,10 @@ public class ODDRPropertyRef implements PropertyRef {
             return false;
         }
         ODDRPropertyRef oddr = (ODDRPropertyRef) o;
-        try {
-            return (oddr.getAspectName().equals(this.getAspectName()) && oddr.getLocalPropertyName().equals(this.getLocalPropertyName()) && oddr.getNamespace().equals(this.getNamespace()));
-
-        } catch (NullPointerException x) {
-            return false;
-        }
+	return
+	    aspectName != null && aspectName.equals(oddr.aspectName) &&
+	    getLocalPropertyName() != null && getLocalPropertyName().equals(oddr.getLocalPropertyName()) &&
+	    getNamespace() != null && getNamespace().equals(oddr.getNamespace());
     }
 
     @Override
