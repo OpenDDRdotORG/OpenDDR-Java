@@ -43,7 +43,8 @@ public class DefaultBrowserBuilder implements Builder {
 
         builders = new Builder[]{
                     new OperaMiniBrowserBuilder(),
-                    new SafariMobileBrowserBuilder(),
+                    new SafariMobileBrowserBuilder(), 
+                    new SilkBrowserBuilder(),
                     new AndroidMobileBrowserBuilder(),
                     new NetFrontBrowserBuilder(),
                     new UPBrowserBuilder(),
@@ -62,7 +63,7 @@ public class DefaultBrowserBuilder implements Builder {
                     new ChromeBrowserBuilder(),
                     new FirefoxBrowserBuilder(),
                     new SafariBrowserBuilder(),
-                    new KonquerorBrowserBuilder(),};
+                    new KonquerorBrowserBuilder()};
     }
 
     public boolean canBuild(UserAgent userAgent) {
