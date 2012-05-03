@@ -34,7 +34,6 @@ public class DefaultOSBuilder implements Builder {
         new MozillaOSModelBuilder(),
         new OperaOSModelBuilder(),
         new BlackBerryOSBuilder(),
-        new IOSWebViewBuilder(),
     };
 
     public static synchronized DefaultOSBuilder getInstance() {
