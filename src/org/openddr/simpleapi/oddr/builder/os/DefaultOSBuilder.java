@@ -33,7 +33,8 @@ public class DefaultOSBuilder implements Builder {
     private Builder[] builders = {
         new MozillaOSModelBuilder(),
         new OperaOSModelBuilder(),
-        new BlackBerryOSBuilder()
+        new BlackBerryOSBuilder(),
+        new IOSWebViewBuilder(),
     };
 
     public static synchronized DefaultOSBuilder getInstance() {

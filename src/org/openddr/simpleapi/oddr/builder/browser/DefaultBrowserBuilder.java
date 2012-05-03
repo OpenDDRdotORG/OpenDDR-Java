@@ -42,9 +42,9 @@ public class DefaultBrowserBuilder implements Builder {
     private DefaultBrowserBuilder() {
 
         builders = new Builder[]{
+                    new OperaMiniBrowserBuilder(),
                     new SafariMobileBrowserBuilder(),
                     new AndroidMobileBrowserBuilder(),
-                    new OperaMiniBrowserBuilder(),
                     new NetFrontBrowserBuilder(),
                     new UPBrowserBuilder(),
                     new OpenWaveBrowserBuilder(),
@@ -62,8 +62,7 @@ public class DefaultBrowserBuilder implements Builder {
                     new ChromeBrowserBuilder(),
                     new FirefoxBrowserBuilder(),
                     new SafariBrowserBuilder(),
-                    new KonquerorBrowserBuilder(),
-                };
+                    new KonquerorBrowserBuilder(),};
     }
 
     public boolean canBuild(UserAgent userAgent) {
