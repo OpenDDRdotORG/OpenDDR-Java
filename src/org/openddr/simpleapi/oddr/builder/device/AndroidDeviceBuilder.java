@@ -211,7 +211,8 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
 
         if (buildHashMatcher.find()) {
             String build = buildHashMatcher.group(1);
-            patternElementInsideClean = patternElementInsideClean.replaceAll("Build/" + build, "Build/");
+	    patternElementInsideClean = patternElementInsideClean.replaceAll("Build/" + Pattern.quote(build), "Build/");
+
         }
         patternElementInsideClean = patternElementInsideClean.replaceAll("Android", "");
 
