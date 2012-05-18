@@ -131,8 +131,6 @@ public class DeviceBuilderHandler extends DefaultHandler {
         } catch (ClassNotFoundException ex) {
             throw new IllegalArgumentException("Can not find class: " + builderClassName + " described in device builder document");
 
-        } catch (NullPointerException ne) {
-            throw new NullPointerException(ne.getMessage());
         }
     }
 

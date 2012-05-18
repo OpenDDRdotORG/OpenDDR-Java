@@ -136,12 +136,10 @@ public class TwoStepDeviceBuilder extends OrderedTokenDeviceBuilder {
 
                 String deviceId = ((Map<String, String>) orderedRules.get(step1Token)).get(originalToken);
 
-                try {
+		if (devices.containsKey(deviceId)) {
                     Device retDevice = (Device) devices.get(deviceId).clone();
                     retDevice.setConfidence(confidence);
                     return retDevice;
-
-                } catch (NullPointerException x) {
                 }
             }
 
@@ -159,12 +157,10 @@ public class TwoStepDeviceBuilder extends OrderedTokenDeviceBuilder {
 
                 String deviceId = ((Map<String, String>) orderedRules.get(step1Token)).get(originalToken);
 
-                try {
+		if (devices.containsKey(deviceId)) {
                     Device retDevice = (Device) devices.get(deviceId).clone();
                     retDevice.setConfidence(confidence);
                     return retDevice;
-
-                } catch (NullPointerException x) {
                 }
             }
         }
