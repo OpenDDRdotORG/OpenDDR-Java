@@ -147,7 +147,7 @@ public class TwoStepDeviceBuilder extends OrderedTokenDeviceBuilder {
 
             if ((betweenTokensLength < maxLittleTokensDistance) || (betweenTokensLength < maxBigTokensDistance && (step2Token.length() < 6 || !step2Token.matches(".*[a-zA-Z].*")))) {
                 if (betweenTokensLength <= 1) {
-                    if (!betweenTokens.matches(".*[ _/-].*")) {
+                    if (!betweenTokens.matches("[ _/-]?")) {
                         confidence -= 20;
                     }
 
