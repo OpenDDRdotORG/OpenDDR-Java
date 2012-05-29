@@ -68,7 +68,7 @@ public class ODDRPropertyValue implements PropertyValue {
         if (!exists()) {
             throw new ValueException(ValueException.NOT_KNOWN, type);
         }
-        if (type.equals(TYPE_LONG) || type.equals(TYPE_INT)) {
+        if (type.equals(TYPE_LONG) || type.equals(TYPE_INT) || type.equals(TYPE_NON_NEGATIVE_INTEGER)) {
             try {
                 return Long.parseLong(value);
 
