@@ -31,8 +31,10 @@ public class UserAgent {
     public static final int INDEX_MOZILLA_PATTERN_GROUP_POST = 5;
     public static final int INDEX_MOZILLA_PATTERN_GROUP_MOZ_VER = 3;
     public static final int INDEX_OPERA_OR_MOZILLA = 2;
-    private static Pattern mozillaPatternCompiled = null;
-    private static Pattern versionPatternCompiled = null;
+    private static Pattern mozillaPatternCompiled =
+	Pattern.compile(MOZILLA_AND_OPERA_PATTERN);
+    private static Pattern versionPatternCompiled =
+	Pattern.compile(".*Version/(\\d+.\\d+).*");
     private String completeUserAgent;
     private boolean mozillaPattern;
     private boolean operaPattern;
@@ -52,14 +54,7 @@ public class UserAgent {
         }
         completeUserAgent = userAgent;
 
-        Matcher result = null;
-        try {
-            result = mozillaPatternCompiled.matcher(userAgent);
-
-        } catch (NullPointerException ex) {
-            mozillaPatternCompiled = Pattern.compile(MOZILLA_AND_OPERA_PATTERN);
-            result = mozillaPatternCompiled.matcher(userAgent);
-        }
+        Matcher result = mozillaPatternCompiled.matcher(userAgent);
 
         if (result.matches()) {
             patternElements = new String[]{
@@ -74,15 +69,7 @@ public class UserAgent {
                 operaVersion = version;
 
                 if (operaVersion.equals("9.80") && patternElements[2] != null) {
-                    Matcher result2 = null;
-
-                    try {
-                        result2 = versionPatternCompiled.matcher(patternElements[2]);
-
-                    } catch (NullPointerException ex) {
-                        versionPatternCompiled = Pattern.compile(".*Version/(\\d+.\\d+).*");
-                        result2 = versionPatternCompiled.matcher(patternElements[2]);
-                    }
+                    Matcher result2 = versionPatternCompiled.matcher(patternElements[2]);
 
                     if (result2.matches()) {
                         operaVersion = result2.group(1);

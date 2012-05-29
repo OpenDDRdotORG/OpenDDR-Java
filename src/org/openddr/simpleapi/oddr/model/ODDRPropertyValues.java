@@ -40,12 +40,10 @@ public class ODDRPropertyValues implements PropertyValues {
     }
 
     public PropertyValue[] getAll() {
-        try {
+	if (properties != null)
             return properties.toArray(new PropertyValue[properties.size()]);
-
-        } catch (NullPointerException x) {
+	else
             return new PropertyValue[0];
-        }
     }
 
     public PropertyValue getValue(PropertyRef pr) throws NameException {

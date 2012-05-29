@@ -30,17 +30,20 @@ import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
 public class DefaultOSBuilder implements Builder {
 
     private static DefaultOSBuilder instance;
-    private Builder[] builders = {
-        new MozillaOSModelBuilder(),
-        new OperaOSModelBuilder(),
-        new BlackBerryOSBuilder(),
-    };
+    private Builder[] builders;
 
     public static synchronized DefaultOSBuilder getInstance() {
         if (instance == null) {
             instance = new DefaultOSBuilder();
         }
         return instance;
+    }
+
+    private DefaultOSBuilder() {
+        this.builders = new Builder[]{
+                    new MozillaOSModelBuilder(),
+                    new OperaOSModelBuilder(),
+                    new BlackBerryOSBuilder(),};
     }
 
     public boolean canBuild(UserAgent userAgent) {
