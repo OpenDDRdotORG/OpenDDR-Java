@@ -76,6 +76,8 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
     }
 
     private Device elaborateSymbianDeviceWithToken(UserAgent userAgent, String token) {
+        String originalToken = token;
+
         if (userAgent.hasMozillaPattern() || userAgent.hasOperaPattern()) {
             int subtract = 0;
             String currentToken = token;
@@ -100,7 +102,8 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
 
                 currentPattern = Pattern.compile(".*Series60.?(\\d+)\\.(\\d+).?" + currentToken + ".*");
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {// userAgent.getPatternElementsInside().matches(".*Series60.?(\\d+)\\.(\\d+).?" + currentToken + ".*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(originalToken);
+                    
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
                         retDevice.setConfidence(100 - subtract);
@@ -112,7 +115,7 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
 
                 currentPattern = Pattern.compile(".*" + currentToken);
                 if (userAgent.getPatternElementsPre() != null && currentPattern.matcher(userAgent.getPatternElementsPre()).matches()) {//userAgent.getPatternElementsPre().matches(".*" + currentToken)) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(originalToken);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -124,7 +127,7 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
 
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken)) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(originalToken);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -137,7 +140,7 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
 
                 currentPattern = Pattern.compile(".*" + currentToken + ".?;.*");
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".?;.*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(originalToken);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -156,7 +159,7 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
 
                 if (userAgent.getPatternElementsInside() != null && currentPattern.matcher(userAgent.getPatternElementsInside()).matches()) {//userAgent.getPatternElementsInside().matches(".*" + currentToken + ".*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(originalToken);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -168,7 +171,7 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
 
                 if (userAgent.getPatternElementsPre() != null && currentPattern.matcher(userAgent.getPatternElementsPre()).matches()) {//userAgent.getPatternElementsPre().matches(".*" + currentToken + ".*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(originalToken);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -180,7 +183,7 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
 
                 if (userAgent.getPatternElementsPost() != null && currentPattern.matcher(userAgent.getPatternElementsPost()).matches()) {//userAgent.getPatternElementsPost().matches(".*" + currentToken + ".*")) {
-                    String deviceId = (String) orderedRules.get(currentToken);
+                    String deviceId = (String) orderedRules.get(originalToken);
 
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
@@ -190,6 +193,39 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
                     } catch (NullPointerException x) {
                     }
                 }
+                subtract += 20;
+            }
+        } else {
+            String ua = userAgent.getCompleteUserAgent().replaceAll("SN[0-9]*", "");
+            System.out.println("UA: " + ua);
+            int subtract = 0;
+            String currentToken = token;
+
+            String looseToken = token.replaceAll("[ _/-]", ".?");
+            Pattern loosePattern = Pattern.compile(".*" + looseToken + ".*");
+
+            if (!loosePattern.matcher(userAgent.getCompleteUserAgent()).matches()) {
+                return null;
+            }
+
+            Pattern currentPattern = null;
+
+            for (int i = 0; i <= 1; i++) {
+                if (i == 1) {
+                    currentToken = looseToken;
+                }
+
+                currentPattern = Pattern.compile(".*" + currentToken + ".*");
+                if (currentPattern.matcher(ua).matches()) {
+                    String deviceId = (String) orderedRules.get(originalToken);
+
+                    if (devices.containsKey(deviceId)) {
+                        Device retDevice = (Device) devices.get(deviceId).clone();
+                        retDevice.setConfidence(100 - subtract);
+                        return retDevice;
+                    }
+                }
+
                 subtract += 20;
             }
         }
