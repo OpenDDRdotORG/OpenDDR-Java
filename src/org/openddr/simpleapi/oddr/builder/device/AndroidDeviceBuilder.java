@@ -180,7 +180,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
                 }
                 if (userAgent.getPatternElementsPost() != null && currentPattern.matcher(userAgent.getPatternElementsPost()).matches()) {//userAgent.getPatternElementsPost().matches(".*" + currentToken + ".*")) {
                     String deviceId = (String) orderedRules.get(token);
-                    
+
                     try {
                         Device retDevice = (Device) devices.get(deviceId).clone();
                         retDevice.setConfidence(60 - subtract);
@@ -230,7 +230,7 @@ public class AndroidDeviceBuilder extends OrderedTokenDeviceBuilder {
             patternElementInsideClean = patternElementInsideClean.replaceAll("Build/" + build, "Build/");
         }
         patternElementInsideClean = patternElementInsideClean.replaceAll("Android", "");
-        
+
         return patternElementInsideClean;
     }
 }
