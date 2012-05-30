@@ -183,7 +183,7 @@ public class SymbianDeviceBuilder extends OrderedTokenDeviceBuilder {
             }
         } else {
             String ua = userAgent.getCompleteUserAgent().replaceAll("SN[0-9]*", "");
-            System.out.println("UA: " + ua);
+
             int subtract = 0;
             String currentToken = token;
 
