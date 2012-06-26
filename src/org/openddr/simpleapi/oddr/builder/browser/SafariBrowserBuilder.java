@@ -31,7 +31,7 @@ public class SafariBrowserBuilder extends LayoutEngineBrowserBuilder {
     private Pattern safariVersionPattern = Pattern.compile(SAFARI_VERSION_REGEXP);
 
     public boolean canBuild(UserAgent userAgent) {
-        return (userAgent.getCompleteUserAgent().contains("Safari") && !userAgent.getCompleteUserAgent().contains("Mobile") && !userAgent.getCompleteUserAgent().contains("GINGERBREAD"));
+        return (userAgent.getCompleteUserAgent().contains("Safari") && !userAgent.getCompleteUserAgent().contains("Mobile"));
     }
 
     @Override
