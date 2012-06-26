@@ -28,15 +28,17 @@ import org.openddr.simpleapi.oddr.model.browser.Browser;
 public class OperaBrowserBuilder extends LayoutEngineBrowserBuilder {
 
     private static final String OPERAMINI_VERSION_REGEXP = "Opera Mobi/(.*)";
+    private static final String OPERA_VERSION_REGEXP = ".* Opera ([0-9\\.]+).*";
     private Pattern operaMiniVersionPattern = Pattern.compile(OPERAMINI_VERSION_REGEXP);
+    private Pattern operaVersionPattern = Pattern.compile(OPERA_VERSION_REGEXP);
 
     public boolean canBuild(UserAgent userAgent) {
-        return (userAgent.hasOperaPattern() && (!userAgent.getCompleteUserAgent().contains("Opera Mini")));
+        return ((userAgent.hasOperaPattern() || userAgent.getCompleteUserAgent().matches(".*" + " Opera [0-9\\.]+" + ".*")) && (!userAgent.getCompleteUserAgent().contains("Opera Mini")));
     }
 
     @Override
     protected Browser buildBrowser(UserAgent userAgent, String layoutEngine, String layoutEngineVersion, int hintedWidth, int hintedHeight) {
-        if (!userAgent.hasOperaPattern() || userAgent.getOperaVersion() == null || userAgent.getOperaVersion().length() == 0) {
+        if ((!userAgent.hasOperaPattern() || userAgent.getOperaVersion() == null || userAgent.getOperaVersion().length() == 0) && (!userAgent.getCompleteUserAgent().matches(".*" + " Opera [0-9\\.]+" + ".*"))) {
             return null;
         }
 
@@ -55,8 +57,18 @@ public class OperaBrowserBuilder extends LayoutEngineBrowserBuilder {
             identified.setModel("Opera");
         }
 
-        identified.setVersion(userAgent.getOperaVersion());
-        String version[] = userAgent.getOperaVersion().split("\\.");
+        if (userAgent.getOperaVersion() != null) {
+            identified.setVersion(userAgent.getOperaVersion());
+        } else {
+            Matcher operaMatcher = operaVersionPattern.matcher(userAgent.getCompleteUserAgent());
+            if (operaMatcher.matches()) {
+                if (operaMatcher.group(1) != null) {
+                    identified.setVersion(operaMatcher.group(1));
+                }
+            }
+        }
+
+        String version[] = identified.getVersion().split("\\.");
 
         if (version.length > 0) {
             identified.setMajorRevision(version[0]);
@@ -83,16 +95,18 @@ public class OperaBrowserBuilder extends LayoutEngineBrowserBuilder {
             }
         }
 
-        String inside[] = userAgent.getPatternElementsInside().split(";");
-        for (String token : inside) {
-            String element = token.trim();
-            Matcher miniMatcher = operaMiniVersionPattern.matcher(element);
-            if (miniMatcher.matches()) {
-                if (miniMatcher.group(1) != null) {
-                    identified.setReferenceBrowser("Opera Mobi");
-                    identified.setReferenceBrowserVersion(miniMatcher.group(1));
-                    confidence += 10;
-                    break;
+        if (userAgent.getPatternElementsInside() != null) {
+            String inside[] = userAgent.getPatternElementsInside().split(";");
+            for (String token : inside) {
+                String element = token.trim();
+                Matcher miniMatcher = operaMiniVersionPattern.matcher(element);
+                if (miniMatcher.matches()) {
+                    if (miniMatcher.group(1) != null) {
+                        identified.setReferenceBrowser("Opera Mobi");
+                        identified.setReferenceBrowserVersion(miniMatcher.group(1));
+                        confidence += 10;
+                        break;
+                    }
                 }
             }
         }

@@ -59,6 +59,7 @@ public class DefaultBrowserBuilder implements Builder {
                     new NokiaBrowserBuilder(),
                     new BlackBerryBrowserBuilder(),
                     new FennecBrowserBuilder(),
+                    new WebOsBrowserBuilder(),
                     new InternetExplorerBrowserBuilder(),
                     new ChromeBrowserBuilder(),
                     new FirefoxBrowserBuilder(),
