@@ -34,8 +34,8 @@ import org.w3c.ddr.simple.Evidence;
 
 public class DeviceIdentificator implements Identificator {
 
-    private DeviceBuilder[] builders;
-    private Map<String, Device> devices;
+	protected DeviceBuilder[] builders;
+	protected Map<String, Device> devices;
 
     public DeviceIdentificator(DeviceBuilder[] builders, Map<String, Device> devices) {
         this.builders = builders;

@@ -31,8 +31,8 @@ import org.w3c.ddr.simple.Evidence;
 
 public class OSIdentificator implements Identificator {
 
-    private Builder[] builders;
-    private Map<String, OperatingSystem> operatingSystemCapabilities;
+    protected Builder[] builders;
+    protected Map<String, OperatingSystem> operatingSystemCapabilities;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     public OSIdentificator(Builder[] builders, Map<String, OperatingSystem> operatingSystemCapabilities) {
@@ -74,7 +74,7 @@ public class OSIdentificator implements Identificator {
         return null;
     }
 
-    private String getClosestKnownBrowserID(String actualOperatingSystemID) {
+    protected String getClosestKnownBrowserID(String actualOperatingSystemID) {
         if (actualOperatingSystemID == null) {
             return null;
         }
