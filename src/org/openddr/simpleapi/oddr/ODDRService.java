@@ -20,23 +20,24 @@
  */
 package org.openddr.simpleapi.oddr;
 
-import org.openddr.simpleapi.oddr.model.ODDRPropertyValue;
-import org.openddr.simpleapi.oddr.model.ODDRPropertyRef;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlContext;
 import org.apache.commons.jexl2.JexlEngine;
@@ -53,13 +54,15 @@ import org.openddr.simpleapi.oddr.identificator.BrowserIdentificator;
 import org.openddr.simpleapi.oddr.identificator.DeviceIdentificator;
 import org.openddr.simpleapi.oddr.identificator.OSIdentificator;
 import org.openddr.simpleapi.oddr.model.BufferedODDRHTTPEvidence;
-import org.openddr.simpleapi.oddr.model.device.Device;
 import org.openddr.simpleapi.oddr.model.ODDRHTTPEvidence;
 import org.openddr.simpleapi.oddr.model.ODDRPropertyName;
+import org.openddr.simpleapi.oddr.model.ODDRPropertyRef;
+import org.openddr.simpleapi.oddr.model.ODDRPropertyValue;
 import org.openddr.simpleapi.oddr.model.ODDRPropertyValues;
 import org.openddr.simpleapi.oddr.model.UserAgent;
 import org.openddr.simpleapi.oddr.model.UserAgentFactory;
 import org.openddr.simpleapi.oddr.model.browser.Browser;
+import org.openddr.simpleapi.oddr.model.device.Device;
 import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
 import org.openddr.simpleapi.oddr.model.vocabulary.Vocabulary;
 import org.openddr.simpleapi.oddr.model.vocabulary.VocabularyProperty;
@@ -108,6 +111,7 @@ public class ODDRService implements Service {
     private static final String GROUP_REGEXPR = "\\$([^ ]+)";
     private Pattern groupRegexprPattern = Pattern.compile(GROUP_REGEXPR);
     protected final Logger logger = LoggerFactory.getLogger(getClass());
+	private Map<String, Device> devices;
 
     public void initialize(String defaultVocabularyIRI, Properties prprts) throws NameException, InitializationException {
         if (defaultVocabularyIRI == null || defaultVocabularyIRI.trim().length() == 0) {
@@ -179,7 +183,13 @@ public class ODDRService implements Service {
         String oddrUaDeviceBuilderPatchPathArray[] = null;
 
         if (oddrUaDeviceBuilderPatchPaths != null && oddrUaDeviceBuilderPatchPaths.trim().length() != 0) {
-            oddrUaDeviceBuilderPatchPathArray = oddrUaDeviceBuilderPatchPaths.split(",");
+			if (oddrUaDeviceBuilderPatchPaths.indexOf(',') > -1) {
+				oddrUaDeviceBuilderPatchPathArray = oddrUaDeviceBuilderPatchPaths
+						.split(",");
+			} else {
+				oddrUaDeviceBuilderPatchPathArray = new String[1];
+				oddrUaDeviceBuilderPatchPathArray[0] = oddrUaDeviceBuilderPatchPaths;
+			}
 
         } else {
             oddrUaDeviceBuilderPatchPathArray = new String[0];
@@ -188,19 +198,25 @@ public class ODDRService implements Service {
         String ooddrUaDeviceDatasourcePatchPathArray[] = null;
 
         if (oddrUaDeviceDatasourcePatchPaths != null && oddrUaDeviceDatasourcePatchPaths.trim().length() != 0) {
-            ooddrUaDeviceDatasourcePatchPathArray = oddrUaDeviceDatasourcePatchPaths.split(",");
+			if (oddrUaDeviceDatasourcePatchPaths.indexOf(',') > -1) {
+				ooddrUaDeviceDatasourcePatchPathArray = oddrUaDeviceDatasourcePatchPaths
+						.split(",");
+			} else {
+				ooddrUaDeviceDatasourcePatchPathArray = new String[1];
+				ooddrUaDeviceDatasourcePatchPathArray[0] = oddrUaDeviceDatasourcePatchPaths;
+			}
 
         } else {
             ooddrUaDeviceDatasourcePatchPathArray = new String[0];
         }
 
-        if (oddrUaDeviceBuilderPatchStreams == null) {
+       /* if (oddrUaDeviceBuilderPatchStreams == null) {
             oddrUaDeviceBuilderPatchStreams = new InputStream[0];
-        }
+        }*/
 
-        if (oddrUaDeviceDatasourcePatchStreams == null) {
+        /*if (oddrUaDeviceDatasourcePatchStreams == null) {
             oddrUaDeviceDatasourcePatchStreams = new InputStream[0];
-        }
+        }*/
 
         if ((oddrUaBrowserDatasourcePaths == null || oddrUaBrowserDatasourcePaths.trim().length() == 0) && oddrUaBrowserDatasourceStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_BROWSER_DATASOURCE_PATH_PROP));
@@ -535,6 +551,7 @@ public class ODDRService implements Service {
         osIdentificator = new OSIdentificator(new Builder[]{DefaultOSBuilder.getInstance()}, operatingSystemDatasourceHandler.getOperatingSystems());
         osIdentificator.completeInit();
 
+        this.devices = deviceDatasourceHandler.getDevices();
         deviceDatasourceHandler = null;
         deviceBuilderHandler = null;
         browserDatasourceHandler = null;
@@ -545,7 +562,12 @@ public class ODDRService implements Service {
         parser = null;
 
         oddrVocabularyService = null;
-
+//        Iterator<Device> ite = this.getDevices().values().iterator();
+//        Device currentDevice = null;
+//        while (ite.hasNext()) {
+//        	currentDevice = ite.next();
+//        	System.out.println(currentDevice.getId());
+//        }
         return;
     }
 
@@ -610,6 +632,7 @@ public class ODDRService implements Service {
         JexlEngine jexl = new JexlEngine();
         ODDRPropertyValues ret = new ODDRPropertyValues();
         Map<String, Vocabulary> vocabularies = vocabularyHolder.getVocabularies();
+       
         Set<String> vocabularyKeys = vocabularies.keySet();
 
         for (String vocabularyKey : vocabularyKeys) {
@@ -895,5 +918,9 @@ public class ODDRService implements Service {
 
     public Evidence newHTTPEvidence(Map<String, String> map) {
         return new ODDRHTTPEvidence(map);
+    }
+    
+    public Map<String, Device> getDevices() {
+    	return this.devices;
     }
 }
