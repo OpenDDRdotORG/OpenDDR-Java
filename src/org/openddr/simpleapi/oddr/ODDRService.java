@@ -194,13 +194,13 @@ public class ODDRService implements Service {
             ooddrUaDeviceDatasourcePatchPathArray = new String[0];
         }
 
-        if (oddrUaDeviceBuilderPatchStreams == null) {
-            oddrUaDeviceBuilderPatchStreams = new InputStream[0];
-        }
-
-        if (oddrUaDeviceDatasourcePatchStreams == null) {
-            oddrUaDeviceDatasourcePatchStreams = new InputStream[0];
-        }
+//        if (oddrUaDeviceBuilderPatchStreams == null) {
+//            oddrUaDeviceBuilderPatchStreams = new InputStream[0];
+//        }
+//
+//        if (oddrUaDeviceDatasourcePatchStreams == null) {
+//            oddrUaDeviceDatasourcePatchStreams = new InputStream[0];
+//        }
 
         if ((oddrUaBrowserDatasourcePaths == null || oddrUaBrowserDatasourcePaths.trim().length() == 0) && oddrUaBrowserDatasourceStream == null) {
             throw new InitializationException(InitializationException.INITIALIZATION_ERROR, new IllegalArgumentException("Can not find property " + ODDR_UA_BROWSER_DATASOURCE_PATH_PROP));
