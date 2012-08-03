@@ -525,7 +525,7 @@ public class ODDRService implements Service {
         } catch (IOException ex) {
             logger.warn("", ex);
         }
-
+        
         deviceIdentificator = new DeviceIdentificator(deviceBuilderHandler.getBuilders(), deviceDatasourceHandler.getDevices());
         deviceIdentificator.completeInit();
 

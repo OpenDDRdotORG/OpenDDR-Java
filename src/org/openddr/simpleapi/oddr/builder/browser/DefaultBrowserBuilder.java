@@ -43,6 +43,8 @@ public class DefaultBrowserBuilder implements Builder {
 
         builders = new Builder[]{
                     new OperaMiniBrowserBuilder(),
+                    new ChromeMobileBrowserBuilder(),
+                    new FennecBrowserBuilder(),
                     new SafariMobileBrowserBuilder(), 
                     new SilkBrowserBuilder(),
                     new AndroidMobileBrowserBuilder(),
@@ -58,7 +60,6 @@ public class DefaultBrowserBuilder implements Builder {
                     new IEMobileBrowserBuilder(),
                     new NokiaBrowserBuilder(),
                     new BlackBerryBrowserBuilder(),
-                    new FennecBrowserBuilder(),
                     new WebOsBrowserBuilder(),
                     new InternetExplorerBrowserBuilder(),
                     new ChromeBrowserBuilder(),

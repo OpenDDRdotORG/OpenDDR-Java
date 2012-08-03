@@ -25,43 +25,37 @@ import java.util.regex.Pattern;
 import org.openddr.simpleapi.oddr.model.UserAgent;
 import org.openddr.simpleapi.oddr.model.browser.Browser;
 
-public class FennecBrowserBuilder extends LayoutEngineBrowserBuilder {
+public class ChromeMobileBrowserBuilder extends LayoutEngineBrowserBuilder {
 
-    private static final String FENNEC_VERSION_REGEXP = ".*Fennec/([0-9a-z\\.\\-]+)";
-    private static final String FIREFOX_VERSION_REGEXP = ".*Firefox.([0-9a-z\\.b]+).*";
-    private Pattern fennecVersionPattern = Pattern.compile(FENNEC_VERSION_REGEXP);
-    private Pattern firefoxVersionPattern = Pattern.compile(FIREFOX_VERSION_REGEXP);
+    private static final String VERSION_REGEXP = "(?:.*Chrome/([0-9\\.]+).*?)|(?:.*CriOS/([0-9\\.]+).*?)";
+    private static final String SAFARI_REGEXP = ".*Safari/([0-9\\.]+).*?";
+    private Pattern versionPattern = Pattern.compile(VERSION_REGEXP);
+    private Pattern safariPattern = Pattern.compile(SAFARI_REGEXP);
 
     public boolean canBuild(UserAgent userAgent) {
-        return (userAgent.getCompleteUserAgent().contains("Fennec") || (userAgent.getCompleteUserAgent().contains("Firefox") && userAgent.getCompleteUserAgent().contains("Mobile")));
+        return ((userAgent.containsAndroid() || userAgent.containsIOSDevices()) && (userAgent.getCompleteUserAgent().contains("Chrome") || userAgent.getCompleteUserAgent().contains("CriOS")));
     }
 
     @Override
     protected Browser buildBrowser(UserAgent userAgent, String layoutEngine, String layoutEngineVersion, int hintedWidth, int hintedHeight) {
-        if (!(userAgent.hasMozillaPattern())) {
+        if (!userAgent.hasMozillaPattern() || !userAgent.getCompleteUserAgent().contains("Mobile")) {
             return null;
         }
 
-        int confidence = 60;
+        int confidence = 70;
         Browser identified = new Browser();
 
-        identified.setVendor("Mozilla");
-        identified.setModel("Firefox Mobile");
-        identified.setVersion("-");
-        identified.setMajorRevision("-");
+        identified.setVendor("Google");
+        identified.setModel("Chrome");
 
-        Matcher fennecMatcher = fennecVersionPattern.matcher(userAgent.getCompleteUserAgent());
-        Matcher firefoxMatcher = firefoxVersionPattern.matcher(userAgent.getCompleteUserAgent());
-        if (fennecMatcher.matches()) {
-            if (fennecMatcher.group(1) != null) {
-                identified.setVersion(fennecMatcher.group(1));
-                String version[] = fennecMatcher.group(1).split("\\.");
+        Matcher versionMatcher = versionPattern.matcher(userAgent.getCompleteUserAgent());
+        if (versionMatcher.matches()) {
+            if (versionMatcher.group(1) != null) {
+                identified.setVersion(versionMatcher.group(1));
+                String version[] = versionMatcher.group(1).split("\\.");
 
                 if (version.length > 0) {
                     identified.setMajorRevision(version[0]);
-                    if (identified.getMajorRevision().length() == 0) {
-                        identified.setMajorRevision("1");
-                    }
                 }
 
                 if (version.length > 1) {
@@ -76,18 +70,12 @@ public class FennecBrowserBuilder extends LayoutEngineBrowserBuilder {
                 if (version.length > 3) {
                     identified.setNanoRevision(version[3]);
                 }
-            }
-
-        } else if (firefoxMatcher.matches()) {
-            if (firefoxMatcher.group(1) != null) {
-                identified.setVersion(firefoxMatcher.group(1));
-                String version[] = firefoxMatcher.group(1).split("\\.");
+            } else if (versionMatcher.group(2) != null) {
+                identified.setVersion(versionMatcher.group(2));
+                String version[] = versionMatcher.group(2).split("\\.");
 
                 if (version.length > 0) {
                     identified.setMajorRevision(version[0]);
-                    if (identified.getMajorRevision().length() == 0) {
-                        identified.setMajorRevision("1");
-                    }
                 }
 
                 if (version.length > 1) {
@@ -106,22 +94,24 @@ public class FennecBrowserBuilder extends LayoutEngineBrowserBuilder {
 
         } else {
             //fallback version
-            identified.setVersion("1.0");
-            identified.setMajorRevision("1");
+            identified.setVersion("18.0");
+            identified.setMajorRevision("18");
         }
 
         if (layoutEngine != null) {
             identified.setLayoutEngine(layoutEngine);
             identified.setLayoutEngineVersion(layoutEngineVersion);
-            if (layoutEngine.equals(LayoutEngineBrowserBuilder.GECKO)) {
+
+            if (layoutEngine.equals(LayoutEngineBrowserBuilder.APPLEWEBKIT)) {
                 confidence += 10;
             }
         }
 
-        if (firefoxMatcher.matches()) {
-            if (firefoxMatcher.group(1) != null) {
-                identified.setReferenceBrowser("Firefox");
-                identified.setReferenceBrowserVersion(firefoxMatcher.group(1));
+        Matcher safariMatcher = safariPattern.matcher(userAgent.getCompleteUserAgent());
+        if (safariMatcher.matches()) {
+            if (safariMatcher.group(1) != null) {
+                identified.setReferenceBrowser("Safari");
+                identified.setReferenceBrowserVersion(safariMatcher.group(1));
                 confidence += 10;
             }
         }
