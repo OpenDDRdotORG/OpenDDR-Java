@@ -31,8 +31,8 @@ import org.w3c.ddr.simple.Evidence;
 
 public class BrowserIdentificator implements Identificator {
 
-    private Builder[] builders;
-    private Map<String, Browser> browserCapabilities;
+	protected Builder[] builders;
+	protected Map<String, Browser> browserCapabilities;
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
     public BrowserIdentificator(Builder[] builders, Map<String, Browser> browserCapabilities) {
@@ -77,7 +77,7 @@ public class BrowserIdentificator implements Identificator {
         return null;
     }
 
-    private String getClosestKnownBrowserID(String actualBrowserID) {
+    protected String getClosestKnownBrowserID(String actualBrowserID) {
         if (actualBrowserID == null) {
             return null;
         }

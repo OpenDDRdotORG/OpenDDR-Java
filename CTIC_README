@@ -1,0 +1,60 @@
+Performance Requirements
+During the use of OpenDDR in a real environment a set of performance requirements has been detected: 
+1 - High-load environments need a high number of device identifications per second. 
+2 - In real browsing situations, the same User-Agent string is used repeatedly.
+
+To improve the performance of OpenDDR in these situations the effort was focused in the addition of Cache mechanisms and the optimization in the use of Regular Expressions. 
+
+
+Regular Expressions Optimization.
+
+This task is accomplished in the org.openddr.simpleapi.oddr.builder.vitamineddevice package.
+The package implements some computational optimizations for the original OpenDDR device builders. These device builders make intensive use of regular expressions.
+
+User Agent Strings are matched with Strings tokens by the use of two kinds of sentences:
+Case A - java.util.String.matches();
+Example - userAgent.getCompleteUserAgent().matches(".*" + token + ".*");
+
+Case B - java.util.regex.Pattern + java.util.regex.Matcher
+Example - Pattern loosePattern = Pattern.compile("(?i).*" + looseToken + ".*");
+          loosePattern.matcher(userAgent.getCompleteUserAgent()).matches());
+ 
+Both approaches are similar but inefficient because of the high number of "Pattern.compile" calls (implicit calls in Case A as can be shown in [1] and [2]).
+The idea is to avoid the use of String.matches and to precompile the regex Patterns as far as possible. A new Token class is implemented in order to reach this optimization. This Token class replaces the token string used in the builders method "elaborateDeviceWithToken" and includes the most frequently used "regex.Patterns" instantiated in the OpenDDR initialization phase. Tokens are stored into the builders and each device identification reuses these "regex.Patterns".
+
+A new version of BuilderDataSource.xml and BuilderDataSourcePatch.xml has been created. These files are equivalent to the original files but with references to the new device builders.
+
+The "VitaminedTwoStepDeviceBuilder.elaborateTwoStepDeviceWithToken" method keeps its original signature and doesn't make use of the Token class because of the lack of performance improvement.
+
+
+
+Cache mechanisms.
+
+In real browsing situations a single request sent from a web browser will generate several requests to the web server or proxy -one for the markup and one for each external resource (CSS, JS, ...)- If identification of these agents for each request can be avoided, a big amount of time will be saved.
+
+In order to improve the performance of the identification process, a set of caches has been used. A new java interface has been created: "org.openddr.simpleapi.oddr.identificator.CachedIdentificator" providing cache support to identificators.
+
+New "identificator" classes has also been generated implementing "CachedIdentificator" interface:
+- org.openddr.simpleapi.oddr.identificator.CachedDeviceIdentificator
+- org.openddr.simpleapi.oddr.identificator.CachedBrowserIdentificator
+- org.openddr.simpleapi.oddr.identificator.CachedIdentifcator
+
+Each of these classes provides two different caches:
+- notFoundUa Cache: LRU Map [3] used to store the User Agent string of unknown devices.
+- object Cache: LRU Map -indexed by User Agent string- used to store the capabilities of previously requested devices.
+
+Three new properties have been added to the oddr.properties files to set the max size of the caches:
+- oddr.cache.device.size: maximum size of devices cache
+- oddr.cache.browser.size: maximum size of browsers cache
+- oddr.cache.os.size: maximum size of operating systems cache
+- oddr.cache.unknownUAs.size: maximum size of unknown devices cache
+
+
+
+Finally, the service "org.openddr.simpleapi.oddr.VitaminedODDRService" has been created cloning "org.openddr.simpleapi.oddr.ODDRService" but using CachedIdentificators instead of OpenDDR default identificators.
+
+
+
+[1] http://docs.oracle.com/javase/7/docs/api/java/lang/String.html#matches(java.lang.String)
+[2] http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html#matches(java.lang.String, java.lang.CharSequence)
+[3] http://commons.apache.org/collections/apidocs/org/apache/commons/collections/map/LRUMap.html
