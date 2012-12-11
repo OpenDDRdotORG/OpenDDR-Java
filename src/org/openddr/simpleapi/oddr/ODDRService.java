@@ -549,7 +549,7 @@ public class ODDRService implements Service {
         return;
     }
 
-    public String getAPIVersion() {
+    public String getImplementationVersion() {
         return ODDR_API_VERSION;
     }
 
