@@ -22,6 +22,7 @@ package org.openddr.simpleapi.oddr.builder.os.mozilla;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import org.openddr.simpleapi.oddr.builder.Builder;
 import org.openddr.simpleapi.oddr.model.BuiltObject;
 import org.openddr.simpleapi.oddr.model.UserAgent;
@@ -41,8 +42,7 @@ public class MacOSXMozillaSubBuilder implements Builder {
         model.setMajorRevision("-");
         model.setVendor("Apple");
         model.setModel("Mac OS X");
-
-        int confidence = 60;
+        model.setConfidence(60);
 
         Matcher versionMatcher = versionPattern.matcher(userAgent.getPatternElementsInside());
         if (versionMatcher.find()) {
@@ -61,8 +61,6 @@ public class MacOSXMozillaSubBuilder implements Builder {
                 model.setMicroRevision(versionMatcher.group(4));
             }
         }
-
-        model.setConfidence(confidence);
 
         return model;
     }
