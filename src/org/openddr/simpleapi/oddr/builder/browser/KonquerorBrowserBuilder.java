@@ -22,16 +22,18 @@ package org.openddr.simpleapi.oddr.builder.browser;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 import org.openddr.simpleapi.oddr.model.UserAgent;
 import org.openddr.simpleapi.oddr.model.browser.Browser;
 
 public class KonquerorBrowserBuilder extends LayoutEngineBrowserBuilder {
 
-    private static final String KONQUEROR_VERSION_REGEXP = ".*Konqueror/([0-9a-z\\.\\-]+).*";
+    private static final String KONQUEROR_VERSION_REGEXP = ".*[Kk]onqueror/([0-9a-z\\.\\-]+).*";
     private Pattern konquerorVersionPattern = Pattern.compile(KONQUEROR_VERSION_REGEXP);
 
     public boolean canBuild(UserAgent userAgent) {
-        return (userAgent.getCompleteUserAgent().contains("Konqueror"));
+        return (userAgent.getCompleteUserAgent().toLowerCase().contains("konqueror"));
     }
 
     @Override
