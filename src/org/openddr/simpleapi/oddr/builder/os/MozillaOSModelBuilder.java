@@ -24,17 +24,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.openddr.simpleapi.oddr.builder.Builder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.AndroidMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.BadaMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.BlackBerryMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.BrewMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.IOSMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.LinuxMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.MacOSXMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.SymbianMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.WebOSMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.WinCEMozillaSubBuilder;
-import org.openddr.simpleapi.oddr.builder.os.mozilla.WinPhoneMozillaSubBuilder;
+import org.openddr.simpleapi.oddr.builder.os.mozilla.*;
 import org.openddr.simpleapi.oddr.model.UserAgent;
 import org.openddr.simpleapi.oddr.model.os.OperatingSystem;
 
@@ -51,7 +41,8 @@ public class MozillaOSModelBuilder implements Builder {
         new BrewMozillaSubBuilder(),
         new WebOSMozillaSubBuilder(),
         new LinuxMozillaSubBuilder(),
-        new MacOSXMozillaSubBuilder()
+        new MacOSXMozillaSubBuilder(),
+        new WinNTMozillaSubBuilder()
     };
 
     public boolean canBuild(UserAgent userAgent) {
