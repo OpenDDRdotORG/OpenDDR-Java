@@ -43,7 +43,7 @@ public class BlackBerryOSBuilder implements Builder {
         OperatingSystem model = new OperatingSystem();
 
         model.setVendor("Research In Motion");
-        model.setModel("Black Berry OS");
+        model.setModel("BlackBerry OS");
         model.setMajorRevision("1");
 
         Matcher versionMatcher = versionPattern.matcher(userAgent.getCompleteUserAgent());
