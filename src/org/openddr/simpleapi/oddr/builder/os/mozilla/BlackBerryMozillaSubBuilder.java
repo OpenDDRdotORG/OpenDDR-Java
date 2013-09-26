@@ -49,7 +49,7 @@ public class BlackBerryMozillaSubBuilder implements Builder {
             if (versionMatcher.find()) {
                 if (versionMatcher.group(11) != null) {
                     model.setVendor("Research In Motion");
-                    model.setModel("RIM Tablet OS");
+                    model.setModel("BlackBerry OS");
                     model.setMajorRevision("1");
                     model.setConfidence(50);
 
@@ -85,7 +85,7 @@ public class BlackBerryMozillaSubBuilder implements Builder {
 
                 } else if (versionMatcher.group(1) != null || versionMatcher.group(6) != null) {
                     model.setVendor("Research In Motion");
-                    model.setModel("Black Berry OS");
+                    model.setModel("BlackBerry OS");
                     model.setMajorRevision("1");
                     model.setConfidence(40);
 
